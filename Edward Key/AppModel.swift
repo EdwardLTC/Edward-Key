@@ -11,6 +11,9 @@ import SwiftUI
 import InputMethodKit
 
 class AppModel: ObservableObject {
+    
+    static let shared = AppModel()
+    
     @Published var inputEnabled: Bool {
         didSet {
             UserDefaults.standard.set(inputEnabled, forKey: "InputEnabled")
@@ -42,11 +45,21 @@ class AppModel: ObservableObject {
         self.inputEnabled = UserDefaults.standard.bool(forKey: "InputEnabled")
         self.inputMethod = UserDefaults.standard.string(forKey: "InputMethod") ?? "Telex"
         self.excludedApps = UserDefaults.standard.stringArray(forKey: "ExcludedApps") ?? []
-
+        
         setupInputEngine()
         updateRunningApps()
+        
+        let nc = NSWorkspace.shared.notificationCenter
+        nc.addObserver(self,
+                       selector: #selector(appDidLaunch(_:)),
+                       name: NSWorkspace.didLaunchApplicationNotification,
+                       object: nil)
+        
+        nc.addObserver(self,
+                       selector: #selector(appDidTerminate(_:)),
+                       name: NSWorkspace.didTerminateApplicationNotification,
+                       object: nil)
     }
-    
     // MARK: - Input Engine Methods
     private func setupInputEngine() {
         inputEngine = VietnameseInputMethodEngine()
@@ -83,11 +96,10 @@ class AppModel: ObservableObject {
     func handleKeyEvent(event: NSEvent, client: Any) -> Bool {
         guard inputEnabled else { return false }
         
-        // Kiểm tra app hiện tại có trong excluded apps không
         if let currentApp = NSWorkspace.shared.frontmostApplication,
            let bundleID = currentApp.bundleIdentifier,
            excludedApps.contains(bundleID) {
-            return false // Bỏ qua xử lý cho app bị excluded
+            return false
         }
         
         return inputEngine?.handleKeyEvent(event: event, client: client) ?? false
@@ -98,5 +110,13 @@ class AppModel: ObservableObject {
         runningApps = NSWorkspace.shared.runningApplications
             .filter { $0.activationPolicy == .regular && $0.bundleIdentifier != nil }
             .sorted { ($0.localizedName ?? "") < ($1.localizedName ?? "") }
+    }
+    
+    @objc private func appDidLaunch(_ notification: Notification) {
+        updateRunningApps()
+    }
+    
+    @objc private func appDidTerminate(_ notification: Notification) {
+        updateRunningApps()
     }
 }

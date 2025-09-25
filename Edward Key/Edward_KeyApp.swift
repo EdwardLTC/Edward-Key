@@ -9,9 +9,19 @@ import SwiftUI
 
 @main
 struct Edward_KeyApp: App {
+    
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
+//    @StateObject var model = AppModel()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView().fixedSize()
+            ContentView().environmentObject(AppModel.shared)
+                .fixedSize()
+                .onAppear {
+                    appDelegate.model = AppModel.shared
+                    appDelegate.setupStatusBarMenu()
+                }
         }
         .windowStyle(HiddenTitleBarWindowStyle())
         .windowResizability(.contentSize)
