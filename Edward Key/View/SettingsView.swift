@@ -12,17 +12,39 @@ struct SettingsView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            HStack {
-                Image(systemName: "gearshape")
-                    .foregroundStyle(.blue)
-                Text("Input Settings")
-                    .font(.headline)
-                    .foregroundStyle(.secondary)
-                Spacer()
-            }
-            .padding(.bottom, 8)
+            HeaderView()
             
-            // Toggle Card
+            ToggleCardView()
+            
+            InputMethodCardView()
+            
+            EngineStatusView()
+        }
+        .padding(20)
+    }
+}
+
+// MARK: - Header View
+private struct HeaderView: View {
+    var body: some View {
+        HStack {
+            Image(systemName: "gearshape")
+                .foregroundStyle(.blue)
+            Text("Input Settings")
+                .font(.headline)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+        .padding(.bottom, 8)
+    }
+}
+
+// MARK: - Toggle Card View
+private struct ToggleCardView: View {
+    @EnvironmentObject var model: AppModel
+    
+    var body: some View {
+        CardContainer {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Image(systemName: "power.circle")
@@ -39,18 +61,16 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(.white.opacity(0.1), lineWidth: 1)
-                    )
-            )
-            
-            // Input Method Card
+        }
+    }
+}
+
+// MARK: - Input Method Card View
+private struct InputMethodCardView: View {
+    @EnvironmentObject var model: AppModel
+    
+    var body: some View {
+        CardContainer {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     Image(systemName: "keyboard").foregroundStyle(.blue)
@@ -69,91 +89,61 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(.white.opacity(0.1), lineWidth: 1)
-                    )
-            )
-            
-            // Exclude App Card
+        }
+    }
+}
+// MARK: - Engine Status View
+private struct EngineStatusView: View {
+    @EnvironmentObject var model: AppModel
+    
+    var body: some View {
+        CardContainer {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Image(systemName: "xmark.circle")
-                        .foregroundStyle(.blue)
-                    Text("Add App Exclusion")
+                    Image(systemName: "engine.combustion")
+                        .foregroundStyle(.orange)
+                    Text("Engine Status")
                         .font(.headline)
+                    Spacer()
+                    
+                    StatusIndicator(isActive: model.inputEnabled)
+                }
+                
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Current Method")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(model.inputMethod)
+                            .font(.system(.body, weight: .medium))
+                            .foregroundStyle(.primary)
+                    }
+                    
+                    Divider()
+                        .frame(height: 30)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Excluded Apps")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text("\(model.excludedApps.count)")
+                            .font(.system(.body, weight: .medium))
+                            .foregroundStyle(.primary)
+                    }
+                    
                     Spacer()
                 }
                 
-                Picker("Select an app to exclude", selection: $model.selectedAppBundleID) {
-                    Text("Select an app").tag("")
-                    ForEach(model.runningApps, id: \.bundleIdentifier) { app in
-                        if let bundleID = app.bundleIdentifier,
-                           let appName = app.localizedName,
-                           !model.excludedApps.contains(bundleID) {
-                            Text(appName).tag(bundleID)
-                        }
-                    }
+                if !model.inputEnabled {
+                    Text("Vietnamese input is currently disabled")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                } else {
+                    Text("Engine is ready for Vietnamese input")
+                        .font(.caption)
+                        .foregroundStyle(.green)
                 }
-                .frame(maxWidth: .infinity)
-                .onChange(of: model.selectedAppBundleID) { oldValue, newValue in
-                    guard !newValue.isEmpty else { return }
-                    withAnimation(.easeInOut) {
-                        model.excludedApps.append(newValue)
-                        model.selectedAppBundleID = ""
-                    }
-                }
-                
-                Text("Selected apps will ignore Vietnamese input")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
-            .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(.white.opacity(0.1), lineWidth: 1)
-                    )
-            )
-            
-            Spacer()
-            
-            // Reset Button
-//            HStack {
-//                Spacer()
-//                Button(action: {
-//                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-//                        model.inputEnabled = true
-//                        model.inputMethod = "Telex"
-//                        model.excludedApps = []
-//                    }
-//                }) {
-//                    HStack {
-//                        Image(systemName: "arrow.counterclockwise")
-//                        Text("Reset to Defaults")
-//                    }
-//                    .padding(.horizontal, 20)
-//                    .padding(.vertical, 10)
-//                    .background(
-//                        Capsule()
-//                            .fill(.ultraThinMaterial)
-//                            .overlay(
-//                                Capsule()
-//                                    .stroke(.white.opacity(0.1), lineWidth: 1)
-//                            )
-//                    )
-//                }
-//                .buttonStyle(PlainButtonStyle())
-//            }
         }
-        .padding(20)
     }
 }

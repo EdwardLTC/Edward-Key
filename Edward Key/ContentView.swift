@@ -96,7 +96,6 @@ struct ContentView: View {
                 Spacer()
             }
             .fixedSize()
-
         }
     }
     

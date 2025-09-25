@@ -5,16 +5,37 @@
 //  Created by Thành Công Lê on 25/9/25.
 //
 
-import SwiftUI
 import AppKit
 import Combine
+import SwiftUI
+import InputMethodKit
 
 class AppModel: ObservableObject {
-    @Published var inputEnabled: Bool
-    @Published var inputMethod: String
-    @Published var excludedApps: [String]
+    @Published var inputEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(inputEnabled, forKey: "InputEnabled")
+            updateInputEngineState()
+        }
+    }
+    
+    @Published var inputMethod: String {
+        didSet {
+            UserDefaults.standard.set(inputMethod, forKey: "InputMethod")
+            updateInputMethod()
+        }
+    }
+    
+    @Published var excludedApps: [String] {
+        didSet {
+            UserDefaults.standard.set(excludedApps, forKey: "ExcludedApps")
+        }
+    }
+    
     @Published var runningApps: [NSRunningApplication] = []
     @Published var selectedAppBundleID: String = ""
+    
+    // Thêm input engine
+    private var inputEngine: VietnameseInputMethodEngine?
     
     // MARK: - Init
     init() {
@@ -22,10 +43,57 @@ class AppModel: ObservableObject {
         self.inputMethod = UserDefaults.standard.string(forKey: "InputMethod") ?? "Telex"
         self.excludedApps = UserDefaults.standard.stringArray(forKey: "ExcludedApps") ?? []
 
+        setupInputEngine()
         updateRunningApps()
     }
     
-    // MARK: - Methods
+    // MARK: - Input Engine Methods
+    private func setupInputEngine() {
+        inputEngine = VietnameseInputMethodEngine()
+        updateInputEngineState()
+        updateInputMethod()
+    }
+    
+    private func updateInputEngineState() {
+        if inputEnabled {
+            // Khởi động engine khi enabled
+            print("Vietnamese input engine enabled")
+        } else {
+            // Tắt engine khi disabled
+            print("Vietnamese input engine disabled")
+        }
+    }
+    
+    private func updateInputMethod() {
+        guard let engine = inputEngine else { return }
+        
+        switch inputMethod {
+        case "Telex":
+            engine.switchInputMethod(0) // Telex
+        case "VNI":
+            engine.switchInputMethod(1) // VNI
+        default:
+            engine.switchInputMethod(0) // Mặc định Telex
+        }
+        
+        print("Switched to \(inputMethod) input method")
+    }
+    
+    // MARK: - Public Methods để xử lý sự kiện bàn phím
+    func handleKeyEvent(event: NSEvent, client: Any) -> Bool {
+        guard inputEnabled else { return false }
+        
+        // Kiểm tra app hiện tại có trong excluded apps không
+        if let currentApp = NSWorkspace.shared.frontmostApplication,
+           let bundleID = currentApp.bundleIdentifier,
+           excludedApps.contains(bundleID) {
+            return false // Bỏ qua xử lý cho app bị excluded
+        }
+        
+        return inputEngine?.handleKeyEvent(event: event, client: client) ?? false
+    }
+    
+    // MARK: - Running Apps Methods
     func updateRunningApps() {
         runningApps = NSWorkspace.shared.runningApplications
             .filter { $0.activationPolicy == .regular && $0.bundleIdentifier != nil }

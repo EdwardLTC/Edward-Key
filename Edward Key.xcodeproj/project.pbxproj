@@ -35,9 +35,30 @@
 		2BF04CD52E85235600598F26 /* Edward Key.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Edward Key.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		2B83EDB92E858031003480CE /* Exceptions for "Edward Key" folder in "Copy Bundle Resources" phase from "Edward Key" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 2BBAB1502E84DD8900A2C688 /* Resources */;
+			membershipExceptions = (
+				Core/Bridge/OpenKeyBridge.mm,
+			);
+		};
+		2B83EDC02E85819E003480CE /* Exceptions for "Edward Key" folder in "Compile Sources" phase from "Edward Key" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 2BBAB14E2E84DD8900A2C688 /* Sources */;
+			membershipExceptions = (
+				Core/Bridge/OpenKeyBridge.h,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2BBAB1542E84DD8900A2C688 /* Edward Key */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2B83EDC02E85819E003480CE /* Exceptions for "Edward Key" folder in "Compile Sources" phase from "Edward Key" target */,
+				2B83EDB92E858031003480CE /* Exceptions for "Edward Key" folder in "Copy Bundle Resources" phase from "Edward Key" target */,
+			);
 			path = "Edward Key";
 			sourceTree = "<group>";
 		};
@@ -402,6 +423,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = "$(SRCROOT)/Edward Key/Core/Bridge/VietnameseIM-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -458,6 +480,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				"SWIFT_OBJC_BRIDGING_HEADER[arch=*]" = "$(SRCROOT)/Edward Key/Core/Bridge/VietnameseIM-Bridging-Header.h";
 			};
 			name = Release;
 		};

@@ -123,13 +123,26 @@ static bool _willTempOffEngine = false;
 void findAndCalculateVowel(const bool& forGrammar=false);
 void insertMark(const Uint32& markMask, const bool& canModifyFlag=true);
 
-static std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-wstring utf8ToWideString(const string& str) {
-    return converter.from_bytes(str.c_str());
+std::wstring utf8ToWideString(const std::string &str) {
+    std::setlocale(LC_ALL, "en_US.UTF-8");
+    
+    size_t len = std::mbstowcs(nullptr, str.c_str(), 0);
+    if (len == (size_t)-1) return L"";
+    
+    std::wstring wstr(len, L'\0');
+    std::mbstowcs(&wstr[0], str.c_str(), len);
+    return wstr;
 }
 
-string wideStringToUtf8(const wstring& str) {
-    return converter.to_bytes(str.c_str());
+std::string wideStringToUtf8(const std::wstring &wstr) {
+    std::setlocale(LC_ALL, "en_US.UTF-8");
+
+    size_t len = std::wcstombs(nullptr, wstr.c_str(), 0);
+    if (len == (size_t)-1) return "";
+
+    std::string str(len, '\0');
+    std::wcstombs(&str[0], wstr.c_str(), len);
+    return str;
 }
 
 void* vKeyInit() {
