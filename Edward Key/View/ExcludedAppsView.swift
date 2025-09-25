@@ -86,7 +86,6 @@ struct ExcludedAppsView: View {
             
             Spacer()
             
-            // Help text at bottom
             Text("Excluded apps will not use Vietnamese input methods")
                 .font(.caption)
                 .foregroundStyle(.secondary)

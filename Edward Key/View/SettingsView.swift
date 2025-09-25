@@ -12,7 +12,6 @@ struct SettingsView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            // Sub-header for this tab
             HStack {
                 Image(systemName: "gearshape")
                     .foregroundStyle(.blue)
@@ -41,7 +40,7 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
             .padding(16)
-            .frame(maxWidth: .infinity, alignment: .leading) // ← Add this
+            .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(.ultraThinMaterial)

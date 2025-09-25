@@ -25,14 +25,37 @@
 
 /* Begin PBXFileReference section */
 		2BA0AE422E84DE9400BF7C23 /* Edward Key.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Edward Key.xcodeproj"; sourceTree = "<group>"; };
+		2BA0AE6F2E851AF600BF7C23 /* Edward Key.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Edward Key.xcodeproj"; sourceTree = "<group>"; };
 		2BBAB1522E84DD8900A2C688 /* Edward Key.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Edward Key.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BBAB15F2E84DD8A00A2C688 /* Edward KeyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Edward KeyTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BBAB1692E84DD8A00A2C688 /* Edward KeyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Edward KeyUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2BF04CD52E85235600598F26 /* Edward Key.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Edward Key.xcodeproj"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		2BA0AFB62E85211C00BF7C23 /* Exceptions for "Edward Key" folder in "Compile Sources" phase from "Edward Key" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 2BBAB14E2E84DD8900A2C688 /* Sources */;
+			membershipExceptions = (
+				ukengine/inputproc.h,
+				ukengine/keycons.h,
+				ukengine/mactab.h,
+				ukengine/Makefile.am,
+				ukengine/Makefile.in,
+				ukengine/stdafx.h,
+				ukengine/ukengine.h,
+				ukengine/usrkeymap.h,
+				ukengine/vnlexi.h,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		2BBAB1542E84DD8900A2C688 /* Edward Key */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				2BA0AFB62E85211C00BF7C23 /* Exceptions for "Edward Key" folder in "Compile Sources" phase from "Edward Key" target */,
+			);
 			path = "Edward Key";
 			sourceTree = "<group>";
 		};
@@ -80,6 +103,13 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		2BA0AE712E851AF600BF7C23 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		2BBAB1492E84DD8900A2C688 = {
 			isa = PBXGroup;
 			children = (
@@ -96,6 +126,13 @@
 				2BBAB1522E84DD8900A2C688 /* Edward Key.app */,
 				2BBAB15F2E84DD8A00A2C688 /* Edward KeyTests.xctest */,
 				2BBAB1692E84DD8A00A2C688 /* Edward KeyUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2BF04CD72E85235600598F26 /* Products */ = {
+			isa = PBXGroup;
+			children = (
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -208,8 +245,16 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = 2BA0AE712E851AF600BF7C23 /* Products */;
+					ProjectRef = 2BA0AE6F2E851AF600BF7C23 /* Edward Key.xcodeproj */;
+				},
+				{
 					ProductGroup = 2BA0AE442E84DE9400BF7C23 /* Products */;
 					ProjectRef = 2BA0AE422E84DE9400BF7C23 /* Edward Key.xcodeproj */;
+				},
+				{
+					ProductGroup = 2BF04CD72E85235600598F26 /* Products */;
+					ProjectRef = 2BF04CD52E85235600598F26 /* Edward Key.xcodeproj */;
 				},
 			);
 			projectRoot = "";
