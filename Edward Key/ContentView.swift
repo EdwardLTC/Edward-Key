@@ -9,80 +9,123 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab = 0
-        @Namespace private var animation
-        @StateObject var model = AppModel()
-        
-        var body: some View {
-            ZStack {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(.ultraThinMaterial)
-                    .background(RoundedRectangle(cornerRadius: 20).fill(Color.white.opacity(0.1)))
-                    .blur(radius: 1)
-                    .shadow(color: Color.black.opacity(0.2), radius: 10, x: 0, y: 4)
-                    .padding()
-                
-                VStack {
+    @Namespace private var animation
+    @StateObject var model = AppModel()
+    
+    var body: some View {
+        ZStack {
+            // Enhanced liquid glass background - FIXED
+            RoundedRectangle(cornerRadius: 24)
+                .fill(.ultraThinMaterial)
+                .shadow(
+                    color: .black.opacity(0.15),
+                    radius: 30, x: 0, y: 20
+                )
+                .overlay(
                     ZStack {
-                        if selectedTab == 0 {
-                            SettingsView()
-                                .environmentObject(model)
-                                .padding(.horizontal, 24)
-                                .frame(maxHeight: 400)
-                                .transition(.asymmetric(insertion: .scale.combined(with: .opacity),
-                                                        removal: .opacity))
-                                .matchedGeometryEffect(id: "tab", in: animation)
-                        } else {
-                            ExcludedAppsView()
-                                .environmentObject(model)
-                                .padding(.horizontal, 24)
-                                .frame(maxHeight: 400)
-                                .transition(.asymmetric(insertion: .scale.combined(with: .opacity),
-                                                        removal: .opacity))
-                                .matchedGeometryEffect(id: "tab", in: animation)
-                        }
+                        LinearGradient(
+                            colors: [
+                                .white.opacity(0.15),
+                                .white.opacity(0.05),
+                                .white.opacity(0.1)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 24))
+                        
+                        RoundedRectangle(cornerRadius: 24)
+                            .strokeBorder(.white.opacity(0.2), lineWidth: 1, antialiased: true)
                     }
-                    .animation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.3), value: selectedTab)
+                )
+                .padding(16)
+            
+            VStack(spacing: 0) {
+                // Persistent header for both tabs
+                HStack(spacing: 12) {
+                    Image(systemName: "keyboard")
+                        .font(.system(size: 24, weight: .medium))
+                        .foregroundStyle(.blue.gradient)
+                        .frame(width: 32)
+                    
+                    Text("Edward Vietnamese Input")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(.primary)
                     
                     Spacer()
                     
-                    // Tab bar
-                    HStack {
-                        tabButton(title: "Settings", image: "gearshape.fill", tag: 0)
-                        tabButton(title: "Excluded Apps", image: "app.fill", tag: 1)
+                    // Tab indicator pills
+                    HStack(spacing: 8) {
+                        tabPill(title: "Settings", tag: 0)
+                        tabPill(title: "Excluded Apps", tag: 1)
                     }
-                    .padding()
+                    .padding(8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(.black.opacity(0.1))
+                    )
                 }
-                .frame(minWidth: 400, minHeight: 450)
+                .padding(.horizontal, 28)
+                .padding(.top, 24)
+                .padding(.bottom, 16)
+                
+                // Tab content area
+                ZStack {
+                    if selectedTab == 0 {
+                        SettingsView()
+                            .environmentObject(model)
+                            .transition(.asymmetric(
+                                insertion: .scale(scale: 0.95, anchor: .center).combined(with: .opacity),
+                                removal: .opacity
+                            ))
+                            .matchedGeometryEffect(id: "tab", in: animation)
+                    } else {
+                        ExcludedAppsView()
+                            .environmentObject(model)
+                            .transition(.asymmetric(
+                                insertion: .scale(scale: 0.95, anchor: .center).combined(with: .opacity),
+                                removal: .opacity
+                            ))
+                            .matchedGeometryEffect(id: "tab", in: animation)
+                    }
+                }
+                .animation(.spring(response: 0.6, dampingFraction: 0.8, blendDuration: 0.3), value: selectedTab)
+                .padding(.horizontal, 20)
+                .frame(maxHeight: .infinity)
+                
+                Spacer()
             }
+            .frame(minWidth: 420, minHeight: 600)
         }
-        
-        @ViewBuilder
-        func tabButton(title: String, image: String, tag: Int) -> some View {
-            Button {
-                withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.3)) {
-                    selectedTab = tag
-                }
-            } label: {
-                VStack {
-                    Image(systemName: image)
-                        .font(.title2)
-                    Text(title)
-                        .font(.caption)
-                }
-                .foregroundColor(selectedTab == tag ? .blue : .gray)
-                .padding(8)
+    }
+    
+    @ViewBuilder
+    func tabPill(title: String, tag: Int) -> some View {
+        Button {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.3)) {
+                selectedTab = tag
+            }
+        } label: {
+            Text(title)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(selectedTab == tag ? .white : .primary)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
                 .background(
-                    ZStack {
+                    Group {
                         if selectedTab == tag {
-                            RoundedRectangle(cornerRadius: 10)
-                                .fill(.ultraThinMaterial)
-                                .matchedGeometryEffect(id: "highlight", in: animation)
+                            Capsule()
+                                .fill(.blue.gradient)
+                                .matchedGeometryEffect(id: "pill", in: animation)
+                        } else {
+                            Capsule()
+                                .fill(.clear)
                         }
                     }
                 )
-            }
-            .buttonStyle(PlainButtonStyle())
         }
+        .buttonStyle(PlainButtonStyle())
+    }
 }
 
 #Preview {

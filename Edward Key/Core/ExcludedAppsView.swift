@@ -11,43 +11,87 @@ struct ExcludedAppsView: View {
     @EnvironmentObject var model: AppModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Excluded Apps")
-                .font(.title3)
-                .bold()
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Image(systemName: "app.badge.checkmark")
+                    .foregroundStyle(.blue)
+                Text("Excluded Applications")
+                    .font(.headline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+            }
+            .padding(.bottom, 8)
             
             if model.excludedApps.isEmpty {
-                Text("No excluded apps yet.")
-                    .foregroundColor(.secondary)
-                    .padding(.top, 20)
-            } else {
-                List {
-                    ForEach(model.excludedApps, id: \.self) { bundleID in
-                        HStack {
-                            Text(bundleID)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-                            Spacer()
-                            Button(action: {
-                                model.excludedApps.removeAll { $0 == bundleID }
-                            }) {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(.red)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        .padding(6)
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(8)
-                    }
+                VStack(spacing: 12) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 40))
+                        .foregroundStyle(.green)
+                    Text("No Apps Excluded")
+                        .font(.headline)
+                    Text("Vietnamese input is enabled for all applications")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
                 }
-                .listStyle(.plain)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 40)
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("\(model.excludedApps.count) app(s) excluded")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    
+                    ScrollView {
+                        LazyVStack(spacing: 8) {
+                            ForEach(model.excludedApps, id: \.self) { bundleID in
+                                HStack {
+                                    Image(systemName: "app.dashed")
+                                        .foregroundStyle(.orange)
+                                        .frame(width: 20)
+                                    
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(bundleID.components(separatedBy: ".").last?.capitalized ?? bundleID)
+                                            .font(.system(size: 13, weight: .medium))
+                                        Text(bundleID)
+                                            .font(.system(size: 10, design: .monospaced))
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Button(action: {
+                                        withAnimation(.easeInOut(duration: 0.2)) {
+                                            model.excludedApps.removeAll { $0 == bundleID }
+                                        }
+                                    }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(.red)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .help("Remove exclusion")
+                                }
+                                .padding(.vertical, 8)
+                                .padding(.horizontal, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(.ultraThinMaterial)
+                                )
+                            }
+                        }
+                    }
+                    .frame(maxHeight: 200)
+                }
             }
             
             Spacer()
+            
+            // Help text at bottom
+            Text("Excluded apps will not use Vietnamese input methods")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
         }
-        .frame(minWidth: 300, minHeight: 0)
-        .fixedSize(horizontal: false, vertical: true)
-        .padding(25)
+        .padding(20)
     }
 }
