@@ -14,5 +14,6 @@ struct Edward_KeyApp: App {
             ContentView().fixedSize()
         }
         .windowStyle(HiddenTitleBarWindowStyle())
+        .windowResizability(.contentSize)
     }
 }
