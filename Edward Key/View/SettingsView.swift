@@ -127,32 +127,32 @@ struct SettingsView: View {
             Spacer()
             
             // Reset Button
-            HStack {
-                Spacer()
-                Button(action: {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                        model.inputEnabled = true
-                        model.inputMethod = "Telex"
-                        model.excludedApps = []
-                    }
-                }) {
-                    HStack {
-                        Image(systemName: "arrow.counterclockwise")
-                        Text("Reset to Defaults")
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .background(
-                        Capsule()
-                            .fill(.ultraThinMaterial)
-                            .overlay(
-                                Capsule()
-                                    .stroke(.white.opacity(0.1), lineWidth: 1)
-                            )
-                    )
-                }
-                .buttonStyle(PlainButtonStyle())
-            }
+//            HStack {
+//                Spacer()
+//                Button(action: {
+//                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+//                        model.inputEnabled = true
+//                        model.inputMethod = "Telex"
+//                        model.excludedApps = []
+//                    }
+//                }) {
+//                    HStack {
+//                        Image(systemName: "arrow.counterclockwise")
+//                        Text("Reset to Defaults")
+//                    }
+//                    .padding(.horizontal, 20)
+//                    .padding(.vertical, 10)
+//                    .background(
+//                        Capsule()
+//                            .fill(.ultraThinMaterial)
+//                            .overlay(
+//                                Capsule()
+//                                    .stroke(.white.opacity(0.1), lineWidth: 1)
+//                            )
+//                    )
+//                }
+//                .buttonStyle(PlainButtonStyle())
+//            }
         }
         .padding(20)
     }

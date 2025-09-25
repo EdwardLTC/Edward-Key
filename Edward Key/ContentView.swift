@@ -95,7 +95,7 @@ struct ContentView: View {
                 
                 Spacer()
             }
-            .frame(minWidth: 420)
+            .fixedSize()
         }
     }
     
