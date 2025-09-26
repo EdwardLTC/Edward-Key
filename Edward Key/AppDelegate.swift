@@ -19,6 +19,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         setupStatusBarMenu()
         KeyboardInterceptor().start()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            if !PermissionManager.requestAccessibilityPermissions() {
+                PermissionManager.showPermissionGuide()
+            }
+        }
     }
     
     func setupStatusBarMenu() {
@@ -51,17 +56,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(title: "Switch to VNI", action: #selector(switchToVNI), keyEquivalent: "2"))
         
         menu.addItem(NSMenuItem.separator())
-
+        
         let quitItem = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
         
         return menu
     }
-
+    
     // MARK: - Status Bar Actions
     @objc func statusBarClicked() { }
-
+    
     @objc func toggleInput() {
         model.inputEnabled.toggle()
         statusItem?.menu = statusMenu() // refresh menu title
