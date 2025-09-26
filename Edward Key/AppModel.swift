@@ -17,7 +17,6 @@ class AppModel: ObservableObject {
     @Published var inputEnabled: Bool {
         didSet {
             UserDefaults.standard.set(inputEnabled, forKey: "InputEnabled")
-            updateInputEngineState()
         }
     }
     
@@ -39,7 +38,7 @@ class AppModel: ObservableObject {
     
     // Thêm input engine
     private var inputEngine: VietnameseInputMethodEngine?
-    
+
     // MARK: - Init
     init() {
         self.inputEnabled = UserDefaults.standard.bool(forKey: "InputEnabled")
@@ -63,18 +62,7 @@ class AppModel: ObservableObject {
     // MARK: - Input Engine Methods
     private func setupInputEngine() {
         inputEngine = VietnameseInputMethodEngine()
-        updateInputEngineState()
         updateInputMethod()
-    }
-    
-    private func updateInputEngineState() {
-        if inputEnabled {
-            // Khởi động engine khi enabled
-            print("Vietnamese input engine enabled")
-        } else {
-            // Tắt engine khi disabled
-            print("Vietnamese input engine disabled")
-        }
     }
     
     private func updateInputMethod() {
@@ -88,12 +76,9 @@ class AppModel: ObservableObject {
         default:
             engine.switchInputMethod(0) // Mặc định Telex
         }
-        
-        print("Switched to \(inputMethod) input method")
     }
-    
     // MARK: - Public Methods để xử lý sự kiện bàn phím
-    func handleKeyEvent(event: NSEvent, client: Any) -> Bool {
+    func handleKeyEvent(event: NSEvent, client: Any?) -> Bool {
         guard inputEnabled else { return false }
         
         if let currentApp = NSWorkspace.shared.frontmostApplication,
@@ -101,6 +86,8 @@ class AppModel: ObservableObject {
            excludedApps.contains(bundleID) {
             return false
         }
+        
+        guard event.type == .keyDown else { return false }
         
         return inputEngine?.handleKeyEvent(event: event, client: client) ?? false
     }

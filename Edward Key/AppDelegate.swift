@@ -8,11 +8,6 @@
 import Foundation
 import Cocoa
 import InputMethodKit
-
-import Cocoa
-import SwiftUI
-
-import Cocoa
 import SwiftUI
 
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -23,10 +18,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         setupStatusBarMenu()
+        KeyboardInterceptor().start()
     }
     
     func setupStatusBarMenu() {
-        guard let _ = model else { return } // ensure model exists
+        guard let _ = model else { return }
         
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem?.button {
@@ -55,8 +51,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(title: "Switch to VNI", action: #selector(switchToVNI), keyEquivalent: "2"))
         
         menu.addItem(NSMenuItem.separator())
-        
-        // Quit
+
         let quitItem = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)

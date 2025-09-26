@@ -12,8 +12,6 @@ struct Edward_KeyApp: App {
     
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
-//    @StateObject var model = AppModel()
-    
     var body: some Scene {
         WindowGroup {
             ContentView().environmentObject(AppModel.shared)
