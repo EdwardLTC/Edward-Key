@@ -89,7 +89,9 @@ class AppModel: ObservableObject {
         
         guard event.type == .keyDown else { return false }
         
-        return inputEngine?.handleKeyEvent(event: event, client: client) ?? false
+        guard let textInput = client as? IMKTextInput else { return false }
+        
+        return inputEngine?.handleKeyEvent(event: event, client: textInput) ?? false
     }
     
     // MARK: - Running Apps Methods

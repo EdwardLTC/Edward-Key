@@ -26,6 +26,7 @@
 /* Begin PBXFileReference section */
 		2B2381202E85723C00C0DA7F /* Edward Key.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Edward Key.xcodeproj"; sourceTree = "<group>"; };
 		2B83ED4F2E85732A003480CE /* Edward Key.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Edward Key.xcodeproj"; sourceTree = "<group>"; };
+		2B83EE022E86471D003480CE /* Edward Key.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Edward Key.xcodeproj"; sourceTree = "<group>"; };
 		2B927EEC2E8571650032082B /* Edward Key.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Edward Key.xcodeproj"; sourceTree = "<group>"; };
 		2BA0AE422E84DE9400BF7C23 /* Edward Key.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Edward Key.xcodeproj"; sourceTree = "<group>"; };
 		2BA0AE6F2E851AF600BF7C23 /* Edward Key.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "Edward Key.xcodeproj"; sourceTree = "<group>"; };
@@ -107,6 +108,13 @@
 			sourceTree = "<group>";
 		};
 		2B83ED512E85732A003480CE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2B83EE052E86471D003480CE /* Products */ = {
 			isa = PBXGroup;
 			children = (
 			);
@@ -275,6 +283,10 @@
 				{
 					ProductGroup = 2B83ED512E85732A003480CE /* Products */;
 					ProjectRef = 2B83ED4F2E85732A003480CE /* Edward Key.xcodeproj */;
+				},
+				{
+					ProductGroup = 2B83EE052E86471D003480CE /* Products */;
+					ProjectRef = 2B83EE022E86471D003480CE /* Edward Key.xcodeproj */;
 				},
 				{
 					ProductGroup = 2BA0AE712E851AF600BF7C23 /* Products */;
