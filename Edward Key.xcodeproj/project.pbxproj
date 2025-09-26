@@ -293,6 +293,14 @@
 					ProjectRef = 2B83ED4F2E85732A003480CE /* Edward Key.xcodeproj */;
 				},
 				{
+					ProductGroup = 2BA028882E8653CD007B54C4 /* Products */;
+					ProjectRef = 2BA028852E8653CD007B54C4 /* Edward Key.xcodeproj */;
+				},
+				{
+					ProductGroup = 2B83EE052E86471D003480CE /* Products */;
+					ProjectRef = 2B83EE022E86471D003480CE /* Edward Key.xcodeproj */;
+				},
+				{
 					ProductGroup = 2BA0AE712E851AF600BF7C23 /* Products */;
 					ProjectRef = 2BA0AE6F2E851AF600BF7C23 /* Edward Key.xcodeproj */;
 				},
@@ -303,14 +311,6 @@
 				{
 					ProductGroup = 2B2381222E85723C00C0DA7F /* Products */;
 					ProjectRef = 2B2381202E85723C00C0DA7F /* Edward Key.xcodeproj */;
-				},
-				{
-					ProductGroup = 2BA028882E8653CD007B54C4 /* Products */;
-					ProjectRef = 2BA028852E8653CD007B54C4 /* Edward Key.xcodeproj */;
-				},
-				{
-					ProductGroup = 2B83EE052E86471D003480CE /* Products */;
-					ProjectRef = 2B83EE022E86471D003480CE /* Edward Key.xcodeproj */;
 				},
 				{
 					ProductGroup = 2BF04CD72E85235600598F26 /* Products */;

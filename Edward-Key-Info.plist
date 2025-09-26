@@ -4,7 +4,5 @@
 <dict>
 	<key></key>
 	<string></string>
-	<key>IMKInputControllerClass</key>
-	<string>EdwardInputController</string>
 </dict>
 </plist>

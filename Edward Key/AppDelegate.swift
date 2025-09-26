@@ -18,12 +18,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         setupStatusBarMenu()
-        KeyboardInterceptor().start()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            if !PermissionManager.requestAccessibilityPermissions() {
-                PermissionManager.showPermissionGuide()
-            }
-        }
+        
+        let settings = OpenKeySettings(
+            inputMethod: .telex,
+            codeTable: .unicode,
+            checkSpelling: true,
+            freeMark: false
+        )
+        
+        InputMethodEngine.shared.updateSettings(settings)
     }
     
     func setupStatusBarMenu() {
@@ -69,7 +72,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     @objc func toggleInput() {
         model.inputEnabled.toggle()
-        statusItem?.menu = statusMenu() // refresh menu title
+        statusItem?.menu = statusMenu()
     }
     
     @objc func switchToTelex() {
