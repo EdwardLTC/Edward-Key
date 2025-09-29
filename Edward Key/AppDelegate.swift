@@ -40,18 +40,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func statusMenu() -> NSMenu {
         let menu = NSMenu()
         
-        // Toggle input
-        let toggleItem = NSMenuItem(
-            title: model.inputEnabled ? "Disable Input" : "Enable Input",
+        let toggleLangItem = NSMenuItem(
+            title: "Language: \(model.lang)",
             action: #selector(toggleInput),
             keyEquivalent: ""
         )
-        toggleItem.target = self
-        menu.addItem(toggleItem)
+        toggleLangItem.target = self
+        menu.addItem(toggleLangItem)
         
-        // Input methods
-        menu.addItem(NSMenuItem(title: "Switch to Telex", action: #selector(switchToTelex), keyEquivalent: "1"))
-        menu.addItem(NSMenuItem(title: "Switch to VNI", action: #selector(switchToVNI), keyEquivalent: "2"))
+        let toggleInputMethodItem = NSMenuItem(
+            title: "Input Method: \(model.inputMethod)",
+            action: #selector(toggleInputMethod),
+            keyEquivalent: ""
+        )
+        toggleInputMethodItem.target = self
+        menu.addItem(toggleInputMethodItem)
         
         menu.addItem(NSMenuItem.separator())
         
@@ -66,16 +69,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func statusBarClicked() { }
     
     @objc func toggleInput() {
-        model.inputEnabled.toggle()
+        model.lang = model.lang == .EN ? .VN : .EN
         statusItem?.menu = statusMenu()
     }
     
-    @objc func switchToTelex() {
-        model.inputMethod = "Telex"
-    }
-    
-    @objc func switchToVNI() {
-        model.inputMethod = "VNI"
+    @objc func toggleInputMethod() {
+        model.inputMethod = model.inputMethod ==  .Telex ? .VNI : .Telex
     }
     
     @objc func quit() {

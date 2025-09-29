@@ -14,16 +14,17 @@ class AppModel: ObservableObject {
     
     static let shared = AppModel()
     
-    @Published var inputEnabled: Bool {
+    @Published var lang: Lang {
         didSet {
-            UserDefaults.standard.set(inputEnabled, forKey: "InputEnabled")
+            UserDefaults.standard.setEnumValue(lang, forKey: "Lang")
+            KeyEventManager.shared.changeLanguage(lang: lang)
         }
     }
     
-    @Published var inputMethod: String {
+    @Published var inputMethod: InputMethod {
         didSet {
             UserDefaults.standard.set(inputMethod, forKey: "InputMethod")
-            KeyEventManager.shared.setInputMethod(type: inputMethod == "Telex" ? 0 : 1)
+            KeyEventManager.shared.setInputMethod(type: inputMethod == .Telex ? 0 : 1)
         }
     }
     
@@ -38,8 +39,8 @@ class AppModel: ObservableObject {
     
     // MARK: - Init
     init() {
-        self.inputEnabled = UserDefaults.standard.bool(forKey: "InputEnabled")
-        self.inputMethod = UserDefaults.standard.string(forKey: "InputMethod") ?? "Telex"
+        self.lang = UserDefaults.standard.enumValue(forKey: "Lang") ?? .EN
+        self.inputMethod = UserDefaults.standard.enumValue(forKey: "InputMethod") ?? .Telex
         self.excludedApps = UserDefaults.standard.stringArray(forKey: "ExcludedApps") ?? []
         
         updateRunningApps()
@@ -72,5 +73,29 @@ class AppModel: ObservableObject {
     
     @objc private func appDidTerminate(_ notification: Notification) {
         updateRunningApps()
+    }
+    
+}
+
+enum Lang: String, Codable {
+    case EN = "English"
+    case VN = "Vietnamese"
+}
+
+enum InputMethod: String, Codable {
+    case Telex = "Telex"
+    case VNI = "VNI"
+}
+
+extension UserDefaults {
+    func enumValue<T: RawRepresentable>(forKey key: String) -> T? where T.RawValue == String {
+        if let rawValue = string(forKey: key) {
+            return T(rawValue: rawValue)
+        }
+        return nil
+    }
+    
+    func setEnumValue<T: RawRepresentable>(_ value: T, forKey key: String) where T.RawValue == String {
+        set(value.rawValue, forKey: key)
     }
 }

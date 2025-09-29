@@ -22,11 +22,11 @@ int vSwitchKeyStatus = 0x7A000206;
 int vRestoreIfWrongSpelling = 0;
 int vFixRecommendBrowser = 1;
 int vUseMacro = 1;
-int vUseMacroInEnglishMode = 1;
+int vUseMacroInEnglishMode = 0;
 int vAutoCapsMacro = 0;
 int vSendKeyStepByStep = 0;
 int vUseSmartSwitchKey = 1;
-int vUpperCaseFirstChar = 0;
+int vUpperCaseFirstChar = 1;
 int vTempOffSpelling = 0;
 int vAllowConsonantZFWJ = 0;
 int vQuickStartConsonant = 0;
@@ -800,5 +800,4 @@ void setLanguage(int lang) {
 void setInputType(int type) {
      vInputType = type;
 }
-
 }

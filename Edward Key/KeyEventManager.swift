@@ -39,6 +39,10 @@ class KeyEventManager {
         setInputType(Int32(type))
     }
     
+    func changeLanguage(lang: Lang) {
+        setLanguage(lang == .EN ? 0 : 1)
+    }
+    
     func stop() {
         if let runLoopSource = runLoopSource {
             CFRunLoopRemoveSource(CFRunLoopGetCurrent(), runLoopSource, .commonModes)
@@ -54,3 +58,4 @@ class KeyEventManager {
         return OpenKeyCallback(proxy, type, event, refcon)
     }
 }
+

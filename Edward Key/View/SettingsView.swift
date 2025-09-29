@@ -18,7 +18,10 @@ struct SettingsView: View {
             
             InputMethodCardView()
             
-            EngineStatusView()
+            Text("Powered EdwardLTC - © 2025 All rights reserved contact: lethanhcong06062003@gmail.com")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(20)
     }
@@ -47,17 +50,20 @@ private struct ToggleCardView: View {
         CardContainer {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    Image(systemName: "power.circle")
-                        .foregroundStyle(model.inputEnabled ? .green : .secondary)
-                    Text("Vietnamese Input")
+                    Image(systemName: "globe")
+                        .foregroundStyle(.blue)
+                    Text("Language")
                         .font(.headline)
                     Spacer()
-                    Toggle("", isOn: $model.inputEnabled)
-                        .toggleStyle(.switch)
-                        .labelsHidden()
+                    Picker("", selection: $model.lang) {
+                        Text("VN").tag(Lang.VN)
+                        Text("EN").tag(Lang.EN)
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(width: 200)
                 }
                 
-                Text("Enable or disable Vietnamese input system-wide")
+                Text("Choose your input language system-wide")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -88,61 +94,6 @@ private struct InputMethodCardView: View {
                 Text("Choose between Telex or VNI input method")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-            }
-        }
-    }
-}
-// MARK: - Engine Status View
-private struct EngineStatusView: View {
-    @EnvironmentObject var model: AppModel
-    
-    var body: some View {
-        CardContainer {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Image(systemName: "engine.combustion")
-                        .foregroundStyle(.orange)
-                    Text("Engine Status")
-                        .font(.headline)
-                    Spacer()
-                    
-                    StatusIndicator(isActive: model.inputEnabled)
-                }
-                
-                HStack(spacing: 16) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Current Method")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(model.inputMethod)
-                            .font(.system(.body, weight: .medium))
-                            .foregroundStyle(.primary)
-                    }
-                    
-                    Divider()
-                        .frame(height: 30)
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Excluded Apps")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text("\(model.excludedApps.count)")
-                            .font(.system(.body, weight: .medium))
-                            .foregroundStyle(.primary)
-                    }
-                    
-                    Spacer()
-                }
-                
-                if !model.inputEnabled {
-                    Text("Vietnamese input is currently disabled")
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                } else {
-                    Text("Engine is ready for Vietnamese input")
-                        .font(.caption)
-                        .foregroundStyle(.green)
-                }
             }
         }
     }

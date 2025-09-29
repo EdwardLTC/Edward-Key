@@ -24,9 +24,17 @@ CGEventRef OpenKeyCallback(CGEventTapProxy proxy,
                            CGEventType type,
                            CGEventRef event,
                            void *refcon);
-
+/*
+ * 0: English
+ * 1: Vietnamese
+ */
 void setLanguage(int lang);
 
+/*
+ * 0: Unicode
+ * 1: TCVN3 (ABC)
+ * 2: VNI-Windows
+ */
 void setInputType(int type);
 
 #ifdef __cplusplus
