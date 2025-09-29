@@ -18,7 +18,7 @@ struct SettingsView: View {
             
             InputMethodCardView()
             
-            Text("Powered EdwardLTC - © 2025 All rights reserved contact: lethanhcong06062003@gmail.com")
+            Text("© 2025 EdwardLTC. Built upon the original OpenKey by @tuyenvm.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -85,8 +85,8 @@ private struct InputMethodCardView: View {
                 }
                 
                 Picker("", selection: $model.inputMethod) {
-                    Text("Telex").tag("Telex")
-                    Text("VNI").tag("VNI")
+                    Text("Telex").tag(InputMethod.Telex)
+                    Text("VNI").tag(InputMethod.VNI)
                 }
                 .pickerStyle(.segmented)
                 .frame(maxWidth: .infinity)

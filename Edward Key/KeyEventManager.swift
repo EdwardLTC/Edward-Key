@@ -35,8 +35,8 @@ class KeyEventManager {
         CGEvent.tapEnable(tap: eventTap, enable: true)
     }
     
-    func setInputMethod(type: Int) {
-        setInputType(Int32(type))
+    func setInputMethod(method: InputMethod) {
+        setInputType(method == .Telex ? 0 : 1)
     }
     
     func changeLanguage(lang: Lang) {

@@ -10,6 +10,10 @@
 #import <Foundation/Foundation.h>
 #import "Engine.h"
 
+extern int vSendKeyStepByStep;
+extern int vFixChromiumBrowser;
+extern int vPerformLayoutCompat;
+
 //see document in Engine.h
 int vLanguage = 1;
 int vInputType = 0;
@@ -35,7 +39,7 @@ int vRememberCode = 1; //new on version 2.0
 int vOtherLanguage = 1; //new on version 2.0
 int vTempOffOpenKey = 0; //new on version 2.0
 int vShowIconOnDock = 0; //new on version 2.0
-int vPerformLayoutCompat = 0;
+int vPerformLayoutCompat = 0; //new on version 2.0
 int vFixChromiumBrowser = 0; //new on version 2.0
 
 #define FRONT_APP [[NSWorkspace sharedWorkspace] frontmostApplication].bundleIdentifier
@@ -66,18 +70,9 @@ NSDictionary *keyStringToKeyCodeMap = @{
     @",": @43, @"<": @43, @".": @47, @">": @47, @"/": @44, @"?": @44
 };
 
-//extern ViewController* viewController;
-//
-//extern AppDelegate* appDelegate;
-extern int vSendKeyStepByStep;
-extern int vFixChromiumBrowser;
-extern int vPerformLayoutCompat;
-
 extern "C" {
 //app which must sent special empty character
-NSArray* _niceSpaceApp = @[@"com.sublimetext.3",
-                           @"com.sublimetext.2",
-];
+NSArray* _niceSpaceApp = @[@"com.sublimetext.3",@"com.sublimetext.2"];
 
 //app which error with unicode Compound
 NSArray* _unicodeCompoundApp = @[@"com.apple.",
@@ -106,39 +101,12 @@ int _i, _j, _k;
 Uint32 _tempChar;
 bool _hasJustUsedHotKey = false;
 
-int _languageTemp = 0; //use for smart switch key
-vector<Byte> savedSmartSwitchKeyData; ////use for smart switch key
+int _languageTemp = 0;
+vector<Byte> savedSmartSwitchKeyData;
 
 NSString* _frontMostApp = @"UnknownApp";
 
 void OpenKeyInit() {
-    //load saved data
-    vFreeMark = 0;//(int)[[NSUserDefaults standardUserDefaults] integerForKey:@"FreeMark"];
-    LOAD_DATA(vCodeTable, CodeTable); if (vCodeTable < 0) vCodeTable = 0;
-    LOAD_DATA(vCheckSpelling, Spelling);
-    LOAD_DATA(vQuickTelex, QuickTelex);
-    LOAD_DATA(vUseModernOrthography, ModernOrthography);
-    LOAD_DATA(vRestoreIfWrongSpelling, RestoreIfInvalidWord);
-    LOAD_DATA(vFixRecommendBrowser, FixRecommendBrowser);
-    LOAD_DATA(vUseMacro, UseMacro);
-    LOAD_DATA(vUseMacroInEnglishMode, UseMacroInEnglishMode);
-    LOAD_DATA(vAutoCapsMacro, vAutoCapsMacro);
-    LOAD_DATA(vSendKeyStepByStep, SendKeyStepByStep);
-    LOAD_DATA(vUseSmartSwitchKey, UseSmartSwitchKey);
-    LOAD_DATA(vUpperCaseFirstChar, UpperCaseFirstChar);
-    
-    LOAD_DATA(vTempOffSpelling, vTempOffSpelling);
-    LOAD_DATA(vAllowConsonantZFWJ, vAllowConsonantZFWJ);
-    LOAD_DATA(vQuickEndConsonant, vQuickEndConsonant);
-    LOAD_DATA(vQuickStartConsonant, vQuickStartConsonant);
-    LOAD_DATA(vRememberCode, vRememberCode);
-    LOAD_DATA(vOtherLanguage, vOtherLanguage);
-    LOAD_DATA(vTempOffOpenKey, vTempOffOpenKey);
-    
-    LOAD_DATA(vFixChromiumBrowser, vFixChromiumBrowser);
-    
-    LOAD_DATA(vPerformLayoutCompat, vPerformLayoutCompat);
-    
     myEventSource = CGEventSourceCreate(kCGEventSourceStatePrivate);
     pData = (vKeyHookState*)vKeyInit();
     
@@ -171,7 +139,6 @@ void OpenKeyInit() {
 }
 
 void RequestNewSession() {
-    //send event signal to Engine
     vKeyHandleEvent(vKeyEvent::Mouse, vKeyEventState::MouseDown, 0);
     
     if (IS_DOUBLE_CODE(vCodeTable)) { //VNI
@@ -214,7 +181,6 @@ void OnActiveAppChanged() { //use for smart switch key; improved on Sep 28th, 20
     if ((_languageTemp & 0x01) != vLanguage) { //for input method
         if (_languageTemp != -1) {
             vLanguage = _languageTemp;
-            //                [appDelegate onImputMethodChanged:NO];
             startNewSession();
         } else {
             saveSmartSwitchKeyData();
@@ -540,7 +506,6 @@ void switchLanguage() {
         vLanguage = 0;
     if (HAS_BEEP(vSwitchKeyStatus))
         NSBeep();
-    //        [appDelegate onImputMethodChanged:YES];
     startNewSession();
 }
 
@@ -607,6 +572,14 @@ CGEventRef OpenKeyCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef e
         return event;
     }
     
+    if (vLanguage == 1) {
+        NSArray *excludedApps = [[NSUserDefaults standardUserDefaults] stringArrayForKey:@"ExcludedApps"];
+        NSRunningApplication *frontApp = [[NSWorkspace sharedWorkspace] frontmostApplication];
+        NSString *bundleID = frontApp.bundleIdentifier;
+        if (bundleID && [excludedApps containsObject:bundleID]) {
+            return event;
+        }
+    }
     
     _flag = CGEventGetFlags(event);
     _keycode = (CGKeyCode)CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode);
@@ -628,7 +601,6 @@ CGEventRef OpenKeyCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef e
                 return NULL;
             }
             if (GET_SWITCH_KEY(convertToolHotKey) == _keycode && checkHotKey(convertToolHotKey, GET_SWITCH_KEY(convertToolHotKey) != 0xFE)){
-                //                    [appDelegate onQuickConvert];
                 _lastFlag = 0;
                 _hasJustUsedHotKey = true;
                 return NULL;
@@ -780,7 +752,7 @@ CGEventRef OpenKeyCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef e
                     startNewSession();
                 }
             }
-        } else if (pData->code == vReplaceMaro) { //MACRO
+        } else if (pData->code == vReplaceMaro) {
             handleMacro();
         }
         
@@ -790,7 +762,6 @@ CGEventRef OpenKeyCallback(CGEventTapProxy proxy, CGEventType type, CGEventRef e
     return event;
 }
 
-
 void setLanguage(int lang) {
     if (lang != vLanguage) {
         vLanguage = lang;
@@ -798,6 +769,6 @@ void setLanguage(int lang) {
 }
 
 void setInputType(int type) {
-     vInputType = type;
+    vInputType = type;
 }
 }

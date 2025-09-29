@@ -24,7 +24,7 @@ class AppModel: ObservableObject {
     @Published var inputMethod: InputMethod {
         didSet {
             UserDefaults.standard.set(inputMethod, forKey: "InputMethod")
-            KeyEventManager.shared.setInputMethod(type: inputMethod == .Telex ? 0 : 1)
+            KeyEventManager.shared.setInputMethod(method: inputMethod)
         }
     }
     
