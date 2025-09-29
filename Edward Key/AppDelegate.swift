@@ -11,22 +11,17 @@ import InputMethodKit
 import SwiftUI
 
 class AppDelegate: NSObject, NSApplicationDelegate {
-    
     var model: AppModel!
     
     var statusItem: NSStatusItem?
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         setupStatusBarMenu()
-        
-        let settings = OpenKeySettings(
-            inputMethod: .telex,
-            codeTable: .unicode,
-            checkSpelling: true,
-            freeMark: false
-        )
-        
-        InputMethodEngine.shared.updateSettings(settings)
+        KeyEventManager.shared.start()
+    }
+    
+    func applicationWillTerminate(_ notification: Notification) {
+        KeyEventManager.shared.stop()
     }
     
     func setupStatusBarMenu() {

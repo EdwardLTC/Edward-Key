@@ -4,21 +4,34 @@
 //
 //  Created by Thành Công Lê on 25/9/25.
 //
+//
 
-#import <Foundation/Foundation.h>
+#ifndef OPENKEYBRIDGE_H
+#define OPENKEYBRIDGE_H
 
-NS_ASSUME_NONNULL_BEGIN
+#include <ApplicationServices/ApplicationServices.h> // for CGEventRef, CGEventTapProxy, etc.
 
-@interface OpenKeyBridge : NSObject
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-- (instancetype)init;
-- (NSString *)processKeyEvent:(int)keyCode modifiers:(int)modifiers currentText:(NSString *)currentText;
-- (void)setInputMethod:(int)method;
-- (void)resetBuffer;
-- (void)setCodeTable:(int)codeTable;
-- (void)setFreeMark:(int)freeMark;
-- (void)setCheckSpelling:(int)checkSpelling;
+/// Initialize the OpenKey engine.
+void OpenKeyInit(void);
 
-@end
+/// Callback function for handling keyboard events.
+/// Safe to pass to CGEventTapCreate.
+CGEventRef OpenKeyCallback(CGEventTapProxy proxy,
+                           CGEventType type,
+                           CGEventRef event,
+                           void *refcon);
 
-NS_ASSUME_NONNULL_END
+void setLanguage(int lang);
+
+void setInputType(int type);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // OPENKEY_H
+
