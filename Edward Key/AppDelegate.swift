@@ -17,6 +17,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow?
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
         setupStatusBarMenu()
         KeyEventManager.shared.start()
         KeyboardShortcuts.onKeyUp(for: .toggleLanguage) {
@@ -37,7 +38,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Open Window", action: #selector(openWindow), keyEquivalent: "o"))
+        //        menu.addItem(NSMenuItem(title: "Open Window", action: #selector(openWindow), keyEquivalent: "o"))
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
         statusItem?.menu = menu

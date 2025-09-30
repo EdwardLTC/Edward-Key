@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2B0C298E2E8B789B003A0F7D /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 2B0C298D2E8B789B003A0F7D /* KeyboardShortcuts */; };
 /* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		2BBAB1602E84DD8A00A2C688 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
