@@ -48,7 +48,7 @@ struct ContentView: View {
                         .foregroundStyle(.blue.gradient)
                         .frame(width: 32)
                     
-                    Text("Edward Vietnamese Input")
+                    Text("Edward Key")
                         .font(.system(size: 20, weight: .semibold))
                         .foregroundStyle(.primary)
                     

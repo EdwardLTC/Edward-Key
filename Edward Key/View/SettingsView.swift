@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import KeyboardShortcuts
 
 struct SettingsView: View {
     @EnvironmentObject var model: AppModel
@@ -49,21 +50,32 @@ private struct ToggleCardView: View {
     var body: some View {
         CardContainer {
             VStack(alignment: .leading, spacing: 12) {
+                // Language picker
                 HStack {
-                    Image(systemName: "globe")
-                        .foregroundStyle(.blue)
-                    Text("Language")
-                        .font(.headline)
+                    Image(systemName: "globe").foregroundStyle(.blue)
+                    Text("Language").font(.headline)
                     Spacer()
                     Picker("", selection: $model.lang) {
                         Text("VN").tag(Lang.VN)
                         Text("EN").tag(Lang.EN)
                     }
                     .pickerStyle(.segmented)
-                    .frame(width: 200)
                 }
                 
                 Text("Choose your input language system-wide")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                
+                Divider().padding(.vertical, 6)
+            
+                HStack {
+                    Image(systemName: "command").foregroundStyle(.purple)
+                    Text("Shortcut").font(.headline)
+                    Spacer()
+                    KeyboardShortcuts.Recorder(for: .toggleLanguage)
+                }
+                
+                Text("Press this shortcut to toggle language quickly")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -82,14 +94,12 @@ private struct InputMethodCardView: View {
                     Image(systemName: "keyboard").foregroundStyle(.blue)
                     Text("Input Method").font(.headline)
                     Spacer()
+                    Picker("", selection: $model.inputMethod) {
+                        Text("Telex").tag(InputMethod.Telex)
+                        Text("VNI").tag(InputMethod.VNI)
+                    }
+                    .pickerStyle(.segmented)
                 }
-                
-                Picker("", selection: $model.inputMethod) {
-                    Text("Telex").tag(InputMethod.Telex)
-                    Text("VNI").tag(InputMethod.VNI)
-                }
-                .pickerStyle(.segmented)
-                .frame(maxWidth: .infinity)
                 
                 Text("Choose between Telex or VNI input method")
                     .font(.caption)

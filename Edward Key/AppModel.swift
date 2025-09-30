@@ -23,7 +23,7 @@ class AppModel: ObservableObject {
     
     @Published var inputMethod: InputMethod {
         didSet {
-            UserDefaults.standard.set(inputMethod, forKey: "InputMethod")
+            UserDefaults.standard.setEnumValue(inputMethod, forKey: "InputMethod")
             KeyEventManager.shared.setInputMethod(method: inputMethod)
         }
     }
@@ -75,27 +75,4 @@ class AppModel: ObservableObject {
         updateRunningApps()
     }
     
-}
-
-enum Lang: String, Codable {
-    case EN = "English"
-    case VN = "Vietnamese"
-}
-
-enum InputMethod: String, Codable {
-    case Telex = "Telex"
-    case VNI = "VNI"
-}
-
-extension UserDefaults {
-    func enumValue<T: RawRepresentable>(forKey key: String) -> T? where T.RawValue == String {
-        if let rawValue = string(forKey: key) {
-            return T(rawValue: rawValue)
-        }
-        return nil
-    }
-    
-    func setEnumValue<T: RawRepresentable>(_ value: T, forKey key: String) where T.RawValue == String {
-        set(value.rawValue, forKey: key)
-    }
 }

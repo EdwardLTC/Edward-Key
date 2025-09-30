@@ -10,7 +10,6 @@ import Cocoa
 class KeyEventManager {
     private var eventTap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
-    
     static let shared = KeyEventManager()
     
     func start() {

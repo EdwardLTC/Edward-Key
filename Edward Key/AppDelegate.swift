@@ -9,15 +9,19 @@ import Foundation
 import Cocoa
 import InputMethodKit
 import SwiftUI
+import KeyboardShortcuts
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     var model: AppModel!
-    
     var statusItem: NSStatusItem?
+    var window: NSWindow?
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         setupStatusBarMenu()
         KeyEventManager.shared.start()
+        KeyboardShortcuts.onKeyUp(for: .toggleLanguage) {
+            AppModel.shared.lang = AppModel.shared.lang == .EN ? .VN : .EN
+        }
     }
     
     func applicationWillTerminate(_ notification: Notification) {
@@ -29,56 +33,40 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "keyboard", accessibilityDescription: "Vietnamese IME")
-            button.action = #selector(statusBarClicked)
-            button.target = self
+            button.title = "EDK"
         }
         
-        statusItem?.menu = statusMenu()
-    }
-    
-    func statusMenu() -> NSMenu {
         let menu = NSMenu()
-        
-        let toggleLangItem = NSMenuItem(
-            title: "Language: \(model.lang)",
-            action: #selector(toggleInput),
-            keyEquivalent: ""
-        )
-        toggleLangItem.target = self
-        menu.addItem(toggleLangItem)
-        
-        let toggleInputMethodItem = NSMenuItem(
-            title: "Input Method: \(model.inputMethod)",
-            action: #selector(toggleInputMethod),
-            keyEquivalent: ""
-        )
-        toggleInputMethodItem.target = self
-        menu.addItem(toggleInputMethodItem)
-        
+        menu.addItem(NSMenuItem(title: "Open Window", action: #selector(openWindow), keyEquivalent: "o"))
         menu.addItem(NSMenuItem.separator())
-        
-        let quitItem = NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q")
-        quitItem.target = self
-        menu.addItem(quitItem)
-        
-        return menu
+        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
+        statusItem?.menu = menu
     }
     
     // MARK: - Status Bar Actions
-    @objc func statusBarClicked() { }
-    
-    @objc func toggleInput() {
-        model.lang = model.lang == .EN ? .VN : .EN
-        statusItem?.menu = statusMenu()
+    @objc func statusBarClicked() {
     }
     
-    @objc func toggleInputMethod() {
-        model.inputMethod = model.inputMethod ==  .Telex ? .VNI : .Telex
+    @objc func openWindow() {
+        if window == nil {
+            let contentView = ContentView().environmentObject(AppModel.shared)
+            window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 400, height: 200),
+                styleMask: [.titled, .closable, .resizable],
+                backing: .buffered,
+                defer: false
+            )
+            window?.center()
+            window?.setFrameAutosaveName("Main Window")
+            window?.contentView = NSHostingView(rootView: contentView)
+        }
+        
+        NSApp.setActivationPolicy(.regular) // temporarily show as a UI app
+        NSApp.activate(ignoringOtherApps: true)
+        window?.makeKeyAndOrderFront(nil)
     }
     
     @objc func quit() {
         NSApplication.shared.terminate(self)
     }
 }
-
