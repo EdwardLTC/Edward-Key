@@ -34,6 +34,12 @@ class AppModel: ObservableObject {
         }
     }
     
+    @Published var isEnableDropOver: Bool {
+        didSet{
+            UserDefaults.standard.set(isEnableDropOver, forKey: "IsEnableDropOver")
+        }
+    }
+    
     @Published var runningApps: [NSRunningApplication] = []
     @Published var selectedAppBundleID: String = ""
     
@@ -42,6 +48,7 @@ class AppModel: ObservableObject {
         self.lang = UserDefaults.standard.enumValue(forKey: "Lang") ?? .EN
         self.inputMethod = UserDefaults.standard.enumValue(forKey: "InputMethod") ?? .Telex
         self.excludedApps = UserDefaults.standard.stringArray(forKey: "ExcludedApps") ?? []
+        self.isEnableDropOver = UserDefaults.standard.bool(forKey: "IsEnableDropOver")
         
         updateRunningApps()
         

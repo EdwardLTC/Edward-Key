@@ -19,6 +19,8 @@ struct SettingsView: View {
             
             InputMethodCardView()
             
+            DropOverCardView()
+            
             Text("© 2025 EdwardLTC. Built upon the original OpenKey by @tuyenvm.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -34,7 +36,7 @@ private struct HeaderView: View {
         HStack {
             Image(systemName: "gearshape")
                 .foregroundStyle(.blue)
-            Text("Input Settings")
+            Text("Settings")
                 .font(.headline)
                 .foregroundStyle(.secondary)
             Spacer()
@@ -108,3 +110,31 @@ private struct InputMethodCardView: View {
         }
     }
 }
+
+private struct DropOverCardView: View {
+    @EnvironmentObject var model: AppModel
+    
+    var body: some View {
+        CardContainer {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack {
+                    Image(systemName: "tray")
+                        .foregroundStyle(.orange)
+                    Text("Drop Over")
+                        .font(.headline)
+                    Spacer()
+                    Toggle("", isOn: $model.isEnableDropOver)
+                        .toggleStyle(SwitchToggleStyle())
+                        .onChange(of: model.isEnableDropOver) { old,newValue in
+                             
+                        }
+                }
+                
+                Text("Enable a floating file tray for quick drag & drop across tabs.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+}
+

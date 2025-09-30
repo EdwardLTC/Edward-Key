@@ -23,10 +23,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         KeyboardShortcuts.onKeyUp(for: .toggleLanguage) {
             AppModel.shared.lang = AppModel.shared.lang == .EN ? .VN : .EN
         }
+        DropOverDelegate.shared.applicationDidFinishLaunching(aNotification)
     }
     
     func applicationWillTerminate(_ notification: Notification) {
         KeyEventManager.shared.stop()
+        DropOverDelegate.shared.applicationWillTerminate(notification)
     }
     
     func setupStatusBarMenu() {
@@ -38,7 +40,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         let menu = NSMenu()
-        //        menu.addItem(NSMenuItem(title: "Open Window", action: #selector(openWindow), keyEquivalent: "o"))
+        DropOverDelegate.shared.setupStatusBar(menu: menu)
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
         statusItem?.menu = menu
