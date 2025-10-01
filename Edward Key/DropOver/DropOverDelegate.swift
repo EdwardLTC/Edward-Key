@@ -46,17 +46,20 @@ class DropOverDelegate{
         
         trayWindow = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 320, height: 450),
-            styleMask: [.borderless, .nonactivatingPanel],
+            styleMask: [.borderless],
             backing: .buffered,
             defer: false
         )
         
         trayWindow.title = "File Tray"
         trayWindow.level = .floating
-        trayWindow.collectionBehavior = [.canJoinAllSpaces, .stationary]
+        trayWindow.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         trayWindow.isReleasedWhenClosed = false
+        trayWindow.isOpaque = false
         trayWindow.backgroundColor = .clear
         trayWindow.hasShadow = true
+        trayWindow.ignoresMouseEvents = false
+        trayWindow.hidesOnDeactivate = false
         trayWindow.registerForDraggedTypes([.fileURL])
         
         let hostingController = NSHostingController(rootView: contentView)
