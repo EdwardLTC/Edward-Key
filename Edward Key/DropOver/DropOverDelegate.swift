@@ -45,7 +45,7 @@ class DropOverDelegate{
         })
         
         trayWindow = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 320, height: 450),
+            contentRect: NSRect(x: 0, y: 0, width: 340, height: 480),
             styleMask: [.borderless],
             backing: .buffered,
             defer: false
@@ -67,11 +67,12 @@ class DropOverDelegate{
         
         if let screen = NSScreen.main {
             let screenRect = screen.visibleFrame
-            let x = screenRect.maxX - 340
-            let y = screenRect.maxY - 470
+            let x = screenRect.maxX - 360
+            let y = screenRect.maxY - 500
             trayWindow.setFrameOrigin(NSPoint(x: x, y: y))
         }
         
+        trayWindow.alphaValue = 0.0
         trayWindow.orderOut(nil)
     }
     
@@ -89,13 +90,78 @@ class DropOverDelegate{
     }
     
     @objc func showTray() {
-        trayWindow.makeKeyAndOrderFront(nil)
-        trayManager.isTrayVisible = true
+        guard let window = trayWindow else { return }
+        
+        // Ensure window is properly positioned for animation
+        if let screen = NSScreen.main {
+            let screenRect = screen.visibleFrame
+            let _ = screenRect.maxX - 340
+            let finalY = screenRect.maxY - 480
+            
+            // Start from slightly off-screen right position
+            let startX = screenRect.maxX + 20
+            window.setFrameOrigin(NSPoint(x: startX, y: finalY))
+        }
+        
+        window.alphaValue = 0.0
+        window.orderFront(nil)
+        
+        // Animate appearance
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.4
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            context.allowsImplicitAnimation = true
+            
+            if let screen = NSScreen.main {
+                let screenRect = screen.visibleFrame
+                let finalX = screenRect.maxX - 340
+                let finalY = screenRect.maxY - 480
+                window.setFrameOrigin(NSPoint(x: finalX, y: finalY))
+            }
+            
+            window.animator().alphaValue = 1.0
+            
+            // Add a subtle scale effect
+            if let contentView = window.contentView {
+                contentView.layer?.transform = CATransform3DMakeScale(0.95, 0.95, 1.0)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    NSAnimationContext.runAnimationGroup { scaleContext in
+                        scaleContext.duration = 0.3
+                        scaleContext.timingFunction = CAMediaTimingFunction(name: .easeOut)
+                        contentView.animator().layer?.transform = CATransform3DIdentity
+                    }
+                }
+            }
+        }
     }
     
     @objc func hideTray() {
-        trayWindow.orderOut(nil)
-        trayManager.isTrayVisible = false
+        guard let window = trayWindow else { return }
+        
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.3
+            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
+            context.allowsImplicitAnimation = true
+            
+            // Slide out to the right with fade
+            if let screen = NSScreen.main {
+                let screenRect = screen.visibleFrame
+                let endX = screenRect.maxX + 50
+                let currentY = window.frame.origin.y
+                window.setFrameOrigin(NSPoint(x: endX, y: currentY))
+            }
+            
+            window.animator().alphaValue = 0.0
+            
+            // Add slight scale down
+            if let contentView = window.contentView {
+                contentView.animator().layer?.transform = CATransform3DMakeScale(0.98, 0.98, 1.0)
+            }
+        } completionHandler: {
+            window.orderOut(nil)
+            // Reset transform for next appearance
+            window.contentView?.layer?.transform = CATransform3DIdentity
+        }
     }
     
     func applicationWillTerminate(_ notification: Notification) {

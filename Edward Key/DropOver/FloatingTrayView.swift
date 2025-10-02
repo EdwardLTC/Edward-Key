@@ -12,83 +12,100 @@ import UniformTypeIdentifiers
 struct FloatingTrayView: View {
     @ObservedObject var trayManager: TrayManager
     @State private var isDropTargeted = false
+    @State private var isHovered = false
     var onCloseTray: (() -> Void)?
     
     var body: some View {
         VStack(spacing: 0) {
+            // Header
             HStack {
-                Text("File Tray")
-                    .font(.headline)
-                    .fontWeight(.semibold)
+                HStack(spacing: 8) {
+                    Image(systemName: "tray.fill")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.blue)
+                    
+                    Text("File Tray")
+                        .font(.system(size: 16, weight: .semibold))
+                    
+                    if !trayManager.files.isEmpty {
+                        Text("\(trayManager.files.count)")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.blue))
+                    }
+                }
                 
                 Spacer()
                 
-                if !trayManager.files.isEmpty {
-                    Button("Clear All") {
-                        trayManager.clearTray()
-                        onCloseTray?()
+                HStack(spacing: 8) {
+                    if !trayManager.files.isEmpty {
+                        Button("Clear All") {
+                            withAnimation(.spring(response: 0.3)) {
+                                trayManager.clearTray()
+                                onCloseTray?()
+                            }
+                        }
+                        .buttonStyle(TrayButtonStyle())
                     }
-                    .buttonStyle(PlainButtonStyle())
-                    .foregroundColor(.secondary)
+                    
+                    Button(action: {
+                        withAnimation(.spring(response: 0.3)) {
+                            onCloseTray?()
+                        }
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 18))
+                    }
+                    .buttonStyle(TrayButtonStyle())
+                    .help("Close Tray")
                 }
-                
-                Button(action: {
-                    onCloseTray?()
-                }) {
-                    Image(systemName: "xmark.circle.fill").foregroundColor(.secondary)
-                }
-                .buttonStyle(PlainButtonStyle())
-                .help("Close Tray")
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
             
             Divider()
+                .background(Color.white.opacity(0.1))
             
-            DropZoneView(isTargeted: $isDropTargeted, trayManager: trayManager).frame(height: 80)
-            
-            Divider()
-            
+            // Content Area
             if trayManager.files.isEmpty {
-                EmptyTrayView()
+                EmptyTrayView(isTargeted: isDropTargeted)
+                    .frame(maxHeight: .infinity)
             } else {
-                FilesListView(trayManager: trayManager,onCloseTray: onCloseTray)
+                FilesListView(trayManager: trayManager, onCloseTray: onCloseTray)
             }
         }
-        .frame(width: 320, height: 450)
-        .background(Color(.windowBackgroundColor).opacity(0.95))
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.3), radius: 20, x: 0, y: 10)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(isDropTargeted ? Color.blue : Color.white.opacity(0.2), lineWidth: isDropTargeted ? 3 : 1)
-        )
-        .animation(.easeInOut(duration: 0.2), value: isDropTargeted)
-    }
-}
-
-struct DropZoneView: View {
-    @Binding var isTargeted: Bool
-    @ObservedObject var trayManager: TrayManager
-    
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: isTargeted ? "tray.fill" : "tray")
-                .font(.system(size: 24))
-                .foregroundColor(isTargeted ? .blue : .secondary)
-            
-            Text(isTargeted ? "Drop files here..." : "Drop zone")
-                .font(.subheadline)
-                .foregroundColor(isTargeted ? .blue : .secondary)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(width: 340, height: 480)
         .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(isTargeted ? Color.blue.opacity(0.1) : Color.clear)
+            RoundedRectangle(cornerRadius: 20)
+                .fill(.regularMaterial)
+                .shadow(color: .black.opacity(0.15), radius: 30, x: 0, y: 15)
         )
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .onDrop(of: [.fileURL], isTargeted: $isTargeted) { providers in
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(
+                    isDropTargeted ?
+                    LinearGradient(
+                        colors: [.blue.opacity(0.8), .purple.opacity(0.6)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ) :
+                    LinearGradient(
+                        colors: [.white.opacity(0.3), .white.opacity(0.1)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: isDropTargeted ? 3 : 1
+                )
+        )
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isDropTargeted)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.2)) {
+                isHovered = hovering
+            }
+        }
+        .onDrop(of: [.fileURL], isTargeted: $isDropTargeted) { providers in
             handleDrop(providers: providers)
         }
     }
@@ -109,7 +126,9 @@ struct DropZoneView: View {
                                 type: url.pathExtension,
                                 url: url
                             )
-                            trayManager.addToTray(fileItem)
+                            withAnimation(.spring(response: 0.3)) {
+                                trayManager.addToTray(fileItem)
+                            }
                             successCount += 1
                         }
                     }
@@ -122,25 +141,39 @@ struct DropZoneView: View {
 }
 
 struct EmptyTrayView: View {
+    let isTargeted: Bool
+    
     var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "tray")
-                .font(.system(size: 48))
-                .foregroundColor(.secondary)
+        VStack(spacing: 20) {
+            Image(systemName: isTargeted ? "tray.and.arrow.down.fill" : "tray")
+                .font(.system(size: 56, weight: .thin))
+                .foregroundStyle(
+                    isTargeted ?
+                    LinearGradient(colors: [.blue, .purple], startPoint: .top, endPoint: .bottom) :
+                    LinearGradient(colors: [.secondary, .secondary.opacity(0.7)], startPoint: .top, endPoint: .bottom)
+                )
+                .symbolEffect(.bounce, value: isTargeted)
             
-            VStack(spacing: 8) {
-                Text("Tray is Empty")
-                    .font(.title3)
-                    .fontWeight(.medium)
+            VStack(spacing: 12) {
+                Text("Drop Files Here")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(isTargeted ? .blue : .primary)
                 
-                Text("Drop files here or shake files to open this tray")
-                    .font(.caption)
+                Text("Drag and drop files anywhere in this tray\nor shake files to open this tray")
+                    .font(.system(size: 13))
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
+                    .lineSpacing(4)
             }
-            .padding(.horizontal)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(isTargeted ? Color.blue.opacity(0.08) : Color.clear)
+                .padding(8)
+        )
+        .scaleEffect(isTargeted ? 1.02 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isTargeted)
     }
 }
 
@@ -150,7 +183,7 @@ struct FilesListView: View {
     
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 8) {
+            LazyVStack(spacing: 1) {
                 ForEach(trayManager.files) { file in
                     TrayFileItemView(file: file, trayManager: trayManager, onCloseTray: onCloseTray)
                 }
@@ -158,6 +191,7 @@ struct FilesListView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
         }
+        .scrollIndicators(.never)
     }
 }
 
@@ -169,55 +203,74 @@ struct TrayFileItemView: View {
     var onCloseTray: (() -> Void)?
     
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
+            // File Icon
             Image(nsImage: NSWorkspace.shared.icon(forFile: file.url.path))
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 32, height: 32)
+                .frame(width: 36, height: 36)
+                .background(Color.white.opacity(0.5))
+                .cornerRadius(8)
+                .shadow(color: .black.opacity(0.1), radius: 1, x: 0, y: 1)
             
-            VStack(alignment: .leading, spacing: 2) {
+            // File Info
+            VStack(alignment: .leading, spacing: 3) {
                 Text(file.name)
                     .font(.system(size: 13, weight: .medium))
                     .lineLimit(1)
+                    .foregroundColor(.primary)
+                
                 Text(file.type.uppercased())
-                    .font(.system(size: 10))
+                    .font(.system(size: 10, weight: .medium))
                     .foregroundColor(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 1)
+                    .background(Capsule().fill(Color.secondary.opacity(0.15)))
             }
             
             Spacer()
             
-            Button(action: {
-                NSWorkspace.shared.activateFileViewerSelecting([file.url])
-            }) {
-                Image(systemName: "folder")
-                    .font(.system(size: 12))
-                    .foregroundColor(.secondary)
-            }
-            .buttonStyle(PlainButtonStyle())
-            .help("Show in Finder")
-            
-            Button(action: {
-                withAnimation {
-                    trayManager.removeFromTray(file)
-                    if trayManager.files.isEmpty {
-                        onCloseTray?()
-                    }
+            // Actions
+            HStack(spacing: 6) {
+                Button(action: {
+                    NSWorkspace.shared.activateFileViewerSelecting([file.url])
+                }) {
+                    Image(systemName: "folder")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(isHovered ? .blue : .secondary)
                 }
-            }) {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 14))
-                    .foregroundColor(.secondary)
+                .buttonStyle(PlainButtonStyle())
+                .help("Show in Finder")
+                
+                Button(action: {
+                    withAnimation(.spring(response: 0.3)) {
+                        trayManager.removeFromTray(file)
+                        if trayManager.files.isEmpty {
+                            onCloseTray?()
+                        }
+                    }
+                }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 16))
+                        .foregroundColor(isHovered ? .red : .secondary)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .help("Remove from tray")
             }
-            .buttonStyle(PlainButtonStyle())
+            .opacity(isHovered ? 1 : 0.7)
         }
         .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.vertical, 10)
         .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(isHovered ? Color.white.opacity(0.2) : Color.clear)
+            RoundedRectangle(cornerRadius: 12)
+                .fill(isHovered ? Color.blue.opacity(0.1) : Color.clear)
         )
-        .scaleEffect(isBeingDragged ? 0.95 : 1.0)
-        .opacity(isBeingDragged ? 0.7 : 1.0)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(isHovered ? Color.blue.opacity(0.3) : Color.clear, lineWidth: 1)
+        )
+        .scaleEffect(isBeingDragged ? 0.98 : 1.0)
+        .opacity(isBeingDragged ? 0.6 : 1.0)
         .onHover { hovering in
             withAnimation(.easeInOut(duration: 0.2)) {
                 isHovered = hovering
@@ -226,7 +279,7 @@ struct TrayFileItemView: View {
         .onDrag {
             isBeingDragged = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.spring()) {
+                withAnimation(.spring(response: 0.3)) {
                     trayManager.removeFromTray(file)
                     if trayManager.files.isEmpty {
                         onCloseTray?()
@@ -237,5 +290,20 @@ struct TrayFileItemView: View {
             return NSItemProvider(object: file.url as NSURL)
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isBeingDragged)
+    }
+}
+
+// Custom Button Style
+struct TrayButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundColor(.secondary)
+            .padding(6)
+            .background(
+                Circle()
+                    .fill(configuration.isPressed ? Color.secondary.opacity(0.2) : Color.clear)
+            )
+            .scaleEffect(configuration.isPressed ? 0.9 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
