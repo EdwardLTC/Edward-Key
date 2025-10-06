@@ -21,12 +21,16 @@ class AppObserver {
     /// Called when the app language changes
     var onLangChange: ((Lang) -> Void)?
     
+    /// Called when the input method changes
+    var onInputMethodChange: ((InputMethod) -> Void)?
+    
     /// Called when app list changes (launch or terminate)
     var onRunningAppsChange: (([NSRunningApplication]) -> Void)?
     
     init() {
         observeFocusedApp()
         observeLanguageChange()
+        observeInputMethodChange()
     }
     
     private func observeFocusedApp() {
@@ -45,6 +49,15 @@ class AppObserver {
             .receive(on: RunLoop.main)
             .sink { [weak self] lang in
                 self?.onLangChange?(lang)
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func observeInputMethodChange(){
+        AppModel.shared.$inputMethod
+            .receive(on: RunLoop.main)
+            .sink { [weak self] method in
+                self?.onInputMethodChange?(method)
             }
             .store(in: &cancellables)
     }

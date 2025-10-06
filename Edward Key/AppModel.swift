@@ -16,18 +16,12 @@ class AppModel: ObservableObject {
     @Published var lang: Lang {
         didSet {
             UserDefaults.standard.setEnumValue(lang, forKey: "Lang")
-            DispatchQueue.main.async {
-                KeyEventManager.shared.changeLanguage(lang: self.lang)
-            }
         }
     }
     
     @Published var inputMethod: InputMethod {
         didSet {
             UserDefaults.standard.setEnumValue(inputMethod, forKey: "InputMethod")
-            DispatchQueue.main.async {
-                KeyEventManager.shared.setInputMethod(method: self.inputMethod)
-            }
         }
     }
     

@@ -20,21 +20,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         setupStatusBarMenu()
-        KeyEventManager.shared.start()
-        KeyboardShortcuts.onKeyUp(for: .toggleLanguage) {
-            AppModel.shared.lang = AppModel.shared.lang == .EN ? .VN : .EN
-        }
+        setupKeyManager()
+        setupKeyboardShortCuts()
+        setupObserve()
         DropOverDelegate.shared.applicationDidFinishLaunching(aNotification)
-        AppObserver.shared.onLangChange = { lang in
-            self.updateStatusButtonTitle()
-        }
-        AppObserver.shared.onAppChange = { app in
-            if let menu = self.statusItem?.menu,
-               let item = menu.items.first(where: { $0.action == #selector(self.excludeCurrentApp) }) {
-                self.updateExcludeMenuItemState(item)
-            }
-        }
-        
     }
     
     func applicationWillTerminate(_ notification: Notification) {
@@ -49,10 +38,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         updateStatusButtonTitle()
         
         let menu = NSMenu()
-        // 🆕 Exclude Current App
         let excludeItem = NSMenuItem(title: "Exclude Current App", action: #selector(excludeCurrentApp), keyEquivalent: "e")
         excludeItem.target = self
-        updateExcludeMenuItemState(excludeItem) // dynamically update enable/disable
+        updateExcludeMenuItemState(excludeItem)
         menu.addItem(excludeItem)
         
         DropOverDelegate.shared.setupStatusBar(menu: menu)
@@ -67,6 +55,32 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
         
         statusItem?.menu = menu
+    }
+    
+    private func setupObserve() {
+        AppObserver.shared.onLangChange = { lang in
+            KeyEventManager.shared.changeLanguage(lang: lang)
+            self.updateStatusButtonTitle()
+        }
+        AppObserver.shared.onAppChange = { app in
+            if let menu = self.statusItem?.menu,
+               let item = menu.items.first(where: { $0.action == #selector(self.excludeCurrentApp) }) {
+                self.updateExcludeMenuItemState(item)
+            }
+        }
+        AppObserver.shared.onInputMethodChange = { method in
+            KeyEventManager.shared.setInputMethod(method: method)
+        }
+    }
+    
+    private func setupKeyManager() {
+        KeyEventManager.shared.start()
+    }
+    
+    private func setupKeyboardShortCuts() {
+        KeyboardShortcuts.onKeyUp(for: .toggleLanguage) {
+            AppModel.shared.lang = AppModel.shared.lang == .EN ? .VN : .EN
+        }
     }
     
     private func updateStatusButtonTitle() {
