@@ -10,8 +10,9 @@ import Cocoa
 import InputMethodKit
 import SwiftUI
 import KeyboardShortcuts
+import Combine
 
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var model: AppModel!
     var statusItem: NSStatusItem?
     var window: NSWindow?
@@ -24,6 +25,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             AppModel.shared.lang = AppModel.shared.lang == .EN ? .VN : .EN
         }
         DropOverDelegate.shared.applicationDidFinishLaunching(aNotification)
+        AppObserver.shared.onLangChange = { lang in
+            self.updateStatusButtonTitle()
+        }
+        AppObserver.shared.onAppChange = { app in
+            if let menu = self.statusItem?.menu,
+               let item = menu.items.first(where: { $0.action == #selector(self.excludeCurrentApp) }) {
+                self.updateExcludeMenuItemState(item)
+            }
+        }
+        
     }
     
     func applicationWillTerminate(_ notification: Notification) {
@@ -35,41 +46,103 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard let _ = model else { return }
         
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        if let button = statusItem?.button {
-            button.title = "EDK"
-        }
+        updateStatusButtonTitle()
         
         let menu = NSMenu()
+        // 🆕 Exclude Current App
+        let excludeItem = NSMenuItem(title: "Exclude Current App", action: #selector(excludeCurrentApp), keyEquivalent: "e")
+        excludeItem.target = self
+        updateExcludeMenuItemState(excludeItem) // dynamically update enable/disable
+        menu.addItem(excludeItem)
+        
         DropOverDelegate.shared.setupStatusBar(menu: menu)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        let openItem = NSMenuItem(title: "Open Window", action: #selector(openWindow), keyEquivalent: "o")
+        openItem.target = self
+        menu.addItem(openItem)
+        
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
+        
         statusItem?.menu = menu
     }
     
-    // MARK: - Status Bar Actions
-    @objc func statusBarClicked() {
+    private func updateStatusButtonTitle() {
+        if let button = statusItem?.button {
+            button.title = model.lang == .EN ? "EDK 🇬🇧" : "EDK 🇻🇳"
+        }
     }
     
     @objc func openWindow() {
-        if window == nil {
+        DispatchQueue.main.async {
+            if let existing = self.window {
+                existing.makeKeyAndOrderFront(nil)
+                NSApp.activate(ignoringOtherApps: true)
+                return
+            }
+            
             let contentView = ContentView().environmentObject(AppModel.shared)
-            window = NSWindow(
+            let newWindow = NSWindow(
                 contentRect: NSRect(x: 0, y: 0, width: 400, height: 200),
                 styleMask: [.titled, .closable, .resizable],
                 backing: .buffered,
                 defer: false
             )
-            window?.center()
-            window?.setFrameAutosaveName("Main Window")
-            window?.contentView = NSHostingView(rootView: contentView)
+            newWindow.center()
+            newWindow.setFrameAutosaveName("Main Window")
+            newWindow.contentView = NSHostingView(rootView: contentView)
+            newWindow.delegate = self
+            
+            self.window = newWindow
+            
+            NSApp.setActivationPolicy(.regular)
+            NSApp.activate(ignoringOtherApps: true)
+            newWindow.makeKeyAndOrderFront(nil)
+            newWindow.orderFrontRegardless()
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                newWindow.makeKey()
+                newWindow.makeFirstResponder(newWindow.contentView)
+            }
         }
-        
-        NSApp.setActivationPolicy(.regular) // temporarily show as a UI app
-        NSApp.activate(ignoringOtherApps: true)
-        window?.makeKeyAndOrderFront(nil)
     }
     
     @objc func quit() {
         NSApplication.shared.terminate(self)
     }
+    
+    @objc func excludeCurrentApp() {
+        guard let focusedApp = NSWorkspace.shared.frontmostApplication,
+              let bundleID = focusedApp.bundleIdentifier else {
+            return
+        }
+        
+        if AppModel.shared.excludedApps.contains(bundleID) {
+            return
+        }
+        
+        AppModel.shared.excludedApps.append(bundleID)
+    }
+    
+    private func updateExcludeMenuItemState(_ item: NSMenuItem) {
+        guard let focusedApp = NSWorkspace.shared.frontmostApplication,
+              let bundleID = focusedApp.bundleIdentifier else {
+            item.isEnabled = false
+            item.title = "Exclude Current App"
+            return
+        }
+        
+        if AppModel.shared.excludedApps.contains(bundleID) {
+            item.isEnabled = false
+            item.isHidden = true
+            item.title = "Excluded: \(focusedApp.localizedName ?? bundleID)"
+        } else {
+            item.isEnabled = true
+            item.isHidden = false
+            item.title = "Exclude \(focusedApp.localizedName ?? "Current App")"
+        }
+    }
+    
 }

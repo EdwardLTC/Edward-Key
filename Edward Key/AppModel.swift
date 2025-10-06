@@ -11,20 +11,23 @@ import SwiftUI
 import InputMethodKit
 
 class AppModel: ObservableObject {
-    
     static let shared = AppModel()
     
     @Published var lang: Lang {
         didSet {
             UserDefaults.standard.setEnumValue(lang, forKey: "Lang")
-            KeyEventManager.shared.changeLanguage(lang: lang)
+            DispatchQueue.main.async {
+                KeyEventManager.shared.changeLanguage(lang: self.lang)
+            }
         }
     }
     
     @Published var inputMethod: InputMethod {
         didSet {
             UserDefaults.standard.setEnumValue(inputMethod, forKey: "InputMethod")
-            KeyEventManager.shared.setInputMethod(method: inputMethod)
+            DispatchQueue.main.async {
+                KeyEventManager.shared.setInputMethod(method: self.inputMethod)
+            }
         }
     }
     
@@ -35,13 +38,10 @@ class AppModel: ObservableObject {
     }
     
     @Published var isEnableDropOver: Bool {
-        didSet{
+        didSet {
             UserDefaults.standard.set(isEnableDropOver, forKey: "IsEnableDropOver")
         }
     }
-    
-    @Published var runningApps: [NSRunningApplication] = []
-    @Published var selectedAppBundleID: String = ""
     
     // MARK: - Init
     init() {
@@ -49,37 +49,6 @@ class AppModel: ObservableObject {
         self.inputMethod = UserDefaults.standard.enumValue(forKey: "InputMethod") ?? .Telex
         self.excludedApps = UserDefaults.standard.stringArray(forKey: "ExcludedApps") ?? []
         self.isEnableDropOver = UserDefaults.standard.bool(forKey: "IsEnableDropOver")
-        
-        updateRunningApps()
-        
-        let nc = NSWorkspace.shared.notificationCenter
-        nc.addObserver(
-            self,
-            selector: #selector(appDidLaunch(_:)),
-            name: NSWorkspace.didLaunchApplicationNotification,
-            object: nil
-        )
-        
-        nc.addObserver(
-            self,
-            selector: #selector(appDidTerminate(_:)),
-            name: NSWorkspace.didTerminateApplicationNotification,
-            object: nil
-        )
     }
-    
-    func updateRunningApps() {
-        runningApps = NSWorkspace.shared.runningApplications
-            .filter { $0.activationPolicy == .regular && $0.bundleIdentifier != nil }
-            .sorted { ($0.localizedName ?? "") < ($1.localizedName ?? "") }
-    }
-    
-    @objc private func appDidLaunch(_ notification: Notification) {
-        updateRunningApps()
-    }
-    
-    @objc private func appDidTerminate(_ notification: Notification) {
-        updateRunningApps()
-    }
-    
 }
+

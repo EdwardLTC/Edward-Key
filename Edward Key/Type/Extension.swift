@@ -9,7 +9,6 @@ import KeyboardShortcuts
 
 extension KeyboardShortcuts.Name {
     static let toggleLanguage = Self("toggleLanguage")
-    static let dropOver = Self("dropOver")
 }
 
 extension UserDefaults {

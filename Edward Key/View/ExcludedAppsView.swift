@@ -15,7 +15,7 @@ struct ExcludedAppsView: View {
             HeaderView()
             
             ExcludeAppCardView()
-
+            
             ListAppExcludedView()
             
             Text("Excluded apps will not use Vietnamese input methods")
@@ -65,13 +65,18 @@ private struct ExcludeAppCardView: View {
     }
 }
 // MARK: - App Picker View
-private struct AppPickerView: View {
+
+struct AppPickerView: View {
     @EnvironmentObject var model: AppModel
     
+    @State private var runningApps: [NSRunningApplication] = []
+    @State private var selectedAppBundleID: String = ""
+    @State private var excludedApps: [String] = []
+    
     var body: some View {
-        Picker("Select an app to exclude", selection: $model.selectedAppBundleID) {
+        Picker("Select an app to exclude", selection: $selectedAppBundleID) {
             Text("Select an app").tag("")
-            ForEach(model.runningApps, id: \.bundleIdentifier) { app in
+            ForEach(runningApps, id: \.bundleIdentifier) { app in
                 if let bundleID = app.bundleIdentifier,
                    let appName = app.localizedName,
                    !model.excludedApps.contains(bundleID) {
@@ -80,15 +85,44 @@ private struct AppPickerView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .onChange(of: model.selectedAppBundleID) { oldValue, newValue in
+        .onChange(of: selectedAppBundleID) { oldValue, newValue in
             guard !newValue.isEmpty else { return }
             withAnimation(.easeInOut) {
                 model.excludedApps.append(newValue)
-                model.selectedAppBundleID = ""
+                selectedAppBundleID = ""
             }
+        }
+        .onAppear {
+            updateRunningApps()
+            observeRunningApps()
         }
     }
 }
+
+extension AppPickerView {
+    private func updateRunningApps() {
+        runningApps = NSWorkspace.shared.runningApplications
+            .filter { $0.activationPolicy == .regular && $0.bundleIdentifier != nil }
+            .sorted { ($0.localizedName ?? "") < ($1.localizedName ?? "") }
+    }
+    
+    private func observeRunningApps() {
+        let nc = NSWorkspace.shared.notificationCenter
+        
+        nc.addObserver(
+            forName: NSWorkspace.didLaunchApplicationNotification,
+            object: nil,
+            queue: .main
+        ) { _ in updateRunningApps() }
+        
+        nc.addObserver(
+            forName: NSWorkspace.didTerminateApplicationNotification,
+            object: nil,
+            queue: .main
+        ) { _ in updateRunningApps() }
+    }
+}
+
 // MARK: - List App Excluded View
 private struct ListAppExcludedView: View {
     @EnvironmentObject var model: AppModel

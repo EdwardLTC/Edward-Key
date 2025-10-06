@@ -30,6 +30,10 @@ struct Edward_KeyApp: App {
                 .onAppear {
                     appDelegate.model = AppModel.shared
                     appDelegate.setupStatusBarMenu()
+                    DispatchQueue.main.async {
+                        NSApp.activate(ignoringOtherApps: true)
+                        NSApp.windows.first?.makeKeyAndOrderFront(nil)
+                    }
                 }
         }
         .windowStyle(HiddenTitleBarWindowStyle())
