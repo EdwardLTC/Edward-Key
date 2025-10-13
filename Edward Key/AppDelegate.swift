@@ -111,7 +111,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             
             self.window = newWindow
             
-            NSApp.setActivationPolicy(.regular)
+            NSApp.setActivationPolicy(.accessory)
             NSApp.activate(ignoringOtherApps: true)
             newWindow.makeKeyAndOrderFront(nil)
             newWindow.orderFrontRegardless()

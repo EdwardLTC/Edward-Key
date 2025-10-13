@@ -5,8 +5,6 @@
 //  Created by Thành Công Lê on 30/9/25.
 //
 
-
-// Models.swift
 import SwiftUI
 
 struct FileItem: Identifiable, Equatable {
