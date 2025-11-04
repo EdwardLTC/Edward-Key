@@ -19,11 +19,12 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         NSApp.setActivationPolicy(.accessory)
+        registerAppToLaunchAtLogin(true)
         setupStatusBarMenu()
         setupKeyManager()
         setupKeyboardShortCuts()
         setupObserve()
-        DropOverDelegate.shared.applicationDidFinishLaunching(aNotification)
+        DropOverDelegate.shared.applicationDidFinishLaunching(Notification(name: NSApplication.didFinishLaunchingNotification))
     }
     
     func applicationWillTerminate(_ notification: Notification) {
