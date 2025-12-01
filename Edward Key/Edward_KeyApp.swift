@@ -28,8 +28,6 @@ struct Edward_KeyApp: App {
             ContentView().environmentObject(AppModel.shared)
                 .fixedSize()
                 .onAppear {
-                    appDelegate.model = AppModel.shared
-                    appDelegate.setupStatusBarMenu()
                     DispatchQueue.main.async {
                         NSApp.activate(ignoringOtherApps: true)
                         NSApp.windows.first?.makeKeyAndOrderFront(nil)

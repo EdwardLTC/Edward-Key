@@ -13,7 +13,7 @@ import KeyboardShortcuts
 import Combine
 
 class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
-    var model: AppModel!
+    var model: AppModel! = AppModel.shared
     var statusItem: NSStatusItem?
     var window: NSWindow?
     
@@ -64,6 +64,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             self.updateStatusButtonTitle()
         }
         AppObserver.shared.onAppChange = { app in
+            KeyEventManager.shared.onActiveAppChange()
             if let menu = self.statusItem?.menu,
                let item = menu.items.first(where: { $0.action == #selector(self.excludeCurrentApp) }) {
                 self.updateExcludeMenuItemState(item)
@@ -112,7 +113,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             
             self.window = newWindow
             
-            NSApp.setActivationPolicy(.accessory)
             NSApp.activate(ignoringOtherApps: true)
             newWindow.makeKeyAndOrderFront(nil)
             newWindow.orderFrontRegardless()

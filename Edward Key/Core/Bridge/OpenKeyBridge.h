@@ -37,6 +37,8 @@ void setLanguage(int lang);
  */
 void setInputType(int type);
 
+void OnActiveAppChanged();
+
 #ifdef __cplusplus
 }
 #endif

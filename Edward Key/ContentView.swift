@@ -78,7 +78,7 @@ struct ContentView: View {
                                 insertion: .scale(scale: 0.95, anchor: .center).combined(with: .opacity),
                                 removal: .opacity
                             ))
-                            .matchedGeometryEffect(id: "tab", in: animation)
+                            .matchedGeometryEffect(id: "settingsTab", in: animation)
                     } else {
                         ExcludedAppsView()
                             .environmentObject(model)
@@ -86,7 +86,7 @@ struct ContentView: View {
                                 insertion: .scale(scale: 0.95, anchor: .center).combined(with: .opacity),
                                 removal: .opacity
                             ))
-                            .matchedGeometryEffect(id: "tab", in: animation)
+                            .matchedGeometryEffect(id: "excludedTab", in: animation)
                     }
                 }
                 .animation(.spring(response: 0.6, dampingFraction: 0.8, blendDuration: 0.3), value: selectedTab)
@@ -95,7 +95,10 @@ struct ContentView: View {
                 
                 Spacer()
             }
-            .fixedSize()
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 28)
+            .padding(.top, 24)
+            .padding(.bottom, 16)
         }
     }
     

@@ -17,7 +17,7 @@ struct SettingsView: View {
             
             ToggleCardView()
             
-            InputMethodCardView()
+//            InputMethodCardView()
             
             DropOverCardView()
             

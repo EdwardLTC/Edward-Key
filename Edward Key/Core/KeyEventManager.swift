@@ -34,6 +34,10 @@ class KeyEventManager {
         CGEvent.tapEnable(tap: eventTap, enable: true)
     }
     
+    func onActiveAppChange(){
+        OnActiveAppChanged()
+    }
+    
     func setInputMethod(method: InputMethod) {
         setInputType(method == .Telex ? 0 : 1)
     }
