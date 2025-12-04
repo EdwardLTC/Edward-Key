@@ -93,35 +93,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     
     @objc func openWindow() {
         DispatchQueue.main.async {
-            if let existing = self.window {
-                existing.makeKeyAndOrderFront(nil)
-                NSApp.activate(ignoringOtherApps: true)
-                return
-            }
-            
-            let contentView = ContentView().environmentObject(AppModel.shared)
-            let newWindow = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 400, height: 200),
-                styleMask: [.titled, .closable, .resizable],
-                backing: .buffered,
-                defer: false
-            )
-            newWindow.center()
-            newWindow.setFrameAutosaveName("Main Window")
-            newWindow.contentView = NSHostingView(rootView: contentView)
-            newWindow.delegate = self
-            
-            self.window = newWindow
-            
-            NSApp.activate(ignoringOtherApps: true)
-            newWindow.makeKeyAndOrderFront(nil)
-            newWindow.orderFrontRegardless()
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                newWindow.makeKey()
-                newWindow.makeFirstResponder(newWindow.contentView)
-            }
-        }
+               NSApp.activate(ignoringOtherApps: true)
+             
+               if let window = NSApp.windows.first {
+                   window.makeKeyAndOrderFront(nil)
+               }
+               
+               if NSApp.windows.isEmpty {
+                   NSApp.sendAction(Selector(("showMainWindow:")), to: nil, from: nil)
+                   
+                   NotificationCenter.default.post(
+                       name: NSApplication.didBecomeActiveNotification,
+                       object: NSApp
+                   )
+               }
+           }
     }
     
     @objc func quit() {

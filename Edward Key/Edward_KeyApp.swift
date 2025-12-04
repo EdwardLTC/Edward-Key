@@ -24,8 +24,9 @@ struct Edward_KeyApp: App {
     }
     
     var body: some Scene {
-        WindowGroup {
-            ContentView().environmentObject(AppModel.shared)
+        WindowGroup("Edward Key") {
+            ContentView()
+                .environmentObject(AppModel.shared)
                 .fixedSize()
                 .onAppear {
                     DispatchQueue.main.async {
@@ -37,4 +38,5 @@ struct Edward_KeyApp: App {
         .windowStyle(HiddenTitleBarWindowStyle())
         .windowResizability(.contentSize)
     }
+
 }
