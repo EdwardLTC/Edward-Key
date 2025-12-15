@@ -25,10 +25,6 @@ class DropOverDelegate{
         let showItem = NSMenuItem(title: "Show Tray", action: #selector(showTray), keyEquivalent: "t")
         showItem.target = self
         menu.addItem(showItem)
-        
-        let hideItem = NSMenuItem(title: "Hide Tray", action: #selector(hideTray), keyEquivalent: "h")
-        hideItem.target = self
-        menu.addItem(hideItem)
     }
     
     private func setupShakeDetection() {

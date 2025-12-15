@@ -16,6 +16,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var model: AppModel! = AppModel.shared
     var statusItem: NSStatusItem?
     var window: NSWindow?
+    var menu: NSMenu?
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -38,22 +39,35 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         updateStatusButtonTitle()
         
-        let menu = NSMenu()
+        menu = NSMenu()
+        
+        guard let button = statusItem?.button else { return }
+        
+        let doubleClickGesture = DoubleClickGestureRecognizer(target: self, action: #selector(handleDoubleClick(_:)))
+        doubleClickGesture.numberOfClicksRequired = 2
+        button.addGestureRecognizer(doubleClickGesture)
+        
+        let singleClickGesture = SingleClickGestureRecognizer(target: self, action: #selector(handleSingleClick(_:)))
+        singleClickGesture.numberOfClicksRequired = 1
+        button.addGestureRecognizer(singleClickGesture)
+        
         let excludeItem = NSMenuItem(title: "Exclude Current App", action: #selector(excludeCurrentApp), keyEquivalent: "e")
         excludeItem.target = self
-        updateExcludeMenuItemState(excludeItem)
-        menu.addItem(excludeItem)
+        menu?.addItem(excludeItem)
         
-        DropOverDelegate.shared.setupStatusBar(menu: menu)
+        menu?.addItem(NSMenuItem.separator())
         
-        menu.addItem(NSMenuItem.separator())
+        DropOverDelegate.shared.setupStatusBar(menu: menu!)
+        
+        menu?.addItem(NSMenuItem.separator())
         
         let openItem = NSMenuItem(title: "Open Window", action: #selector(openWindow), keyEquivalent: "o")
         openItem.target = self
-        menu.addItem(openItem)
+        menu?.addItem(openItem)
         
-        menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
+        menu?.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
+        
+        updateExcludeMenuItemState(excludeItem)
         
         statusItem?.menu = menu
     }
@@ -93,21 +107,21 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     
     @objc func openWindow() {
         DispatchQueue.main.async {
-               NSApp.activate(ignoringOtherApps: true)
-             
-               if let window = NSApp.windows.first {
-                   window.makeKeyAndOrderFront(nil)
-               }
-               
-               if NSApp.windows.isEmpty {
-                   NSApp.sendAction(Selector(("showMainWindow:")), to: nil, from: nil)
-                   
-                   NotificationCenter.default.post(
-                       name: NSApplication.didBecomeActiveNotification,
-                       object: NSApp
-                   )
-               }
-           }
+            NSApp.activate(ignoringOtherApps: true)
+            
+            if NSApp.windows.isEmpty {
+                let storyboard = NSStoryboard(name: "Main", bundle: nil)
+                if let windowController = storyboard.instantiateInitialController() as? NSWindowController {
+                    windowController.showWindow(self)
+                }
+                
+            } else {
+                if let window = NSApp.windows.first {
+                    window.makeKeyAndOrderFront(nil)
+                    window.orderFrontRegardless()
+                }
+            }
+        }
     }
     
     @objc func quit() {
@@ -125,6 +139,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         
         AppModel.shared.excludedApps.append(bundleID)
+    }
+    
+    @objc func toggleLang(){
+        model.lang = model.lang == .EN ? .VN : .EN
     }
     
     private func updateExcludeMenuItemState(_ item: NSMenuItem) {
@@ -146,4 +164,33 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
     }
     
+    @objc private func handleSingleClick(_ sender: NSClickGestureRecognizer) {
+        if let button = statusItem?.button {
+                let point = NSPoint(x: button.bounds.midX, y: button.bounds.maxY)
+                menu?.popUp(positioning: nil, at: point, in: button)
+            }
+    }
+    
+    @objc private func handleDoubleClick(_ sender: NSClickGestureRecognizer) {
+        toggleLang()
+    }
+}
+
+
+class DoubleClickGestureRecognizer: NSClickGestureRecognizer {
+    override func shouldRequireFailure(of otherGestureRecognizer: NSGestureRecognizer) -> Bool {
+        return false
+    }
+    
+    override func shouldBeRequiredToFail(by otherGestureRecognizer: NSGestureRecognizer) -> Bool {
+        return otherGestureRecognizer is NSClickGestureRecognizer &&
+               (otherGestureRecognizer as? NSClickGestureRecognizer)?.numberOfClicksRequired == 1
+    }
+}
+
+class SingleClickGestureRecognizer: NSClickGestureRecognizer {
+    override func shouldRequireFailure(of otherGestureRecognizer: NSGestureRecognizer) -> Bool {
+        return otherGestureRecognizer is NSClickGestureRecognizer &&
+               (otherGestureRecognizer as? NSClickGestureRecognizer)?.numberOfClicksRequired == 2
+    }
 }
