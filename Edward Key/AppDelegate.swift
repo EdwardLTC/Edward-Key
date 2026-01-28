@@ -107,22 +107,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     
     @objc func openWindow() {
         DispatchQueue.main.async {
+            
             NSApp.activate(ignoringOtherApps: true)
             
-            if NSApp.windows.isEmpty {
-                let storyboard = NSStoryboard(name: "Main", bundle: nil)
-                if let windowController = storyboard.instantiateInitialController() as? NSWindowController {
-                    windowController.showWindow(self)
-                }
-                
-            } else {
-                if let window = NSApp.windows.first {
-                    window.makeKeyAndOrderFront(nil)
-                    window.orderFrontRegardless()
-                }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                // Post a notification that the main app can listen to
+                NotificationCenter.default.post(
+                    name: Notification.Name("OpenMainWindowRequest"),
+                    object: nil
+                )
             }
         }
     }
+    
     
     @objc func quit() {
         NSApplication.shared.terminate(self)
@@ -166,9 +163,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     
     @objc private func handleSingleClick(_ sender: NSClickGestureRecognizer) {
         if let button = statusItem?.button {
-                let point = NSPoint(x: button.bounds.midX, y: button.bounds.maxY)
-                menu?.popUp(positioning: nil, at: point, in: button)
-            }
+            let point = NSPoint(x: button.bounds.midX, y: button.bounds.maxY)
+            menu?.popUp(positioning: nil, at: point, in: button)
+        }
     }
     
     @objc private func handleDoubleClick(_ sender: NSClickGestureRecognizer) {
@@ -184,13 +181,13 @@ class DoubleClickGestureRecognizer: NSClickGestureRecognizer {
     
     override func shouldBeRequiredToFail(by otherGestureRecognizer: NSGestureRecognizer) -> Bool {
         return otherGestureRecognizer is NSClickGestureRecognizer &&
-               (otherGestureRecognizer as? NSClickGestureRecognizer)?.numberOfClicksRequired == 1
+        (otherGestureRecognizer as? NSClickGestureRecognizer)?.numberOfClicksRequired == 1
     }
 }
 
 class SingleClickGestureRecognizer: NSClickGestureRecognizer {
     override func shouldRequireFailure(of otherGestureRecognizer: NSGestureRecognizer) -> Bool {
         return otherGestureRecognizer is NSClickGestureRecognizer &&
-               (otherGestureRecognizer as? NSClickGestureRecognizer)?.numberOfClicksRequired == 2
+        (otherGestureRecognizer as? NSClickGestureRecognizer)?.numberOfClicksRequired == 2
     }
 }
