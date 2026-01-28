@@ -17,6 +17,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var statusItem: NSStatusItem?
     var window: NSWindow?
     var menu: NSMenu?
+    var mainWindow: NSWindow?
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -26,6 +27,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         setupKeyboardShortCuts()
         setupObserve()
         DropOverDelegate.shared.applicationDidFinishLaunching(Notification(name: NSApplication.didFinishLaunchingNotification))
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.createMainWindow()
+        }
     }
     
     func applicationWillTerminate(_ notification: Notification) {
@@ -107,17 +112,42 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     
     @objc func openWindow() {
         DispatchQueue.main.async {
-            
             NSApp.activate(ignoringOtherApps: true)
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                // Post a notification that the main app can listen to
-                NotificationCenter.default.post(
-                    name: Notification.Name("OpenMainWindowRequest"),
-                    object: nil
-                )
+            if let existingWindow = self.mainWindow, existingWindow.isVisible {
+                existingWindow.makeKeyAndOrderFront(nil)
+                existingWindow.orderFrontRegardless()
+            } else {
+                self.mainWindow = nil
+                self.createMainWindow()
             }
         }
+    }
+    
+    private func createMainWindow() {
+        let newWindow = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 580, height: 720),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable],
+            backing: .buffered,
+            defer: false
+        )
+        
+        let hostingView = NSHostingView(
+            rootView: ContentView().environmentObject(AppModel.shared)
+        )
+        hostingView.autoresizingMask = [.width, .height]
+        
+        newWindow.contentView = hostingView
+        newWindow.title = "Edward Key"
+        newWindow.titlebarAppearsTransparent = true
+        newWindow.titleVisibility = .hidden
+        newWindow.isMovableByWindowBackground = true
+        newWindow.isReleasedWhenClosed = false
+        newWindow.delegate = self
+        newWindow.center()
+        
+        self.mainWindow = newWindow
+        newWindow.makeKeyAndOrderFront(nil)
     }
     
     
@@ -158,6 +188,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             item.isEnabled = true
             item.isHidden = false
             item.title = "Exclude \(focusedApp.localizedName ?? "Current App")"
+        }
+    }
+    
+    // MARK: - NSWindowDelegate
+    func windowWillClose(_ notification: Notification) {
+        if notification.object as? NSWindow === mainWindow {
+            // Clean up the view hierarchy before clearing the window reference
+            mainWindow?.contentView = nil
+            mainWindow = nil
         }
     }
     

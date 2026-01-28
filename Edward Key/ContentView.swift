@@ -8,138 +8,110 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var selectedTab = 0
-    @Namespace private var animation
     @EnvironmentObject var model: AppModel
+    @State private var runningApps: [NSRunningApplication] = []
+    @State private var selectedAppBundleID: String = ""
+    @State private var showExcludedAppsModal = false
     
     var body: some View {
         ZStack {
-            // Enhanced liquid glass background - FIXED
-            RoundedRectangle(cornerRadius: 24)
-                .fill(.ultraThinMaterial)
-                .shadow(
-                    color: .black.opacity(0.15),
-                    radius: 30, x: 0, y: 20
-                )
-                .overlay(
-                    ZStack {
-                        LinearGradient(
-                            colors: [
-                                .white.opacity(0.15),
-                                .white.opacity(0.05),
-                                .white.opacity(0.1)
-                            ],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 24))
-                        
-                        RoundedRectangle(cornerRadius: 24)
-                            .strokeBorder(.white.opacity(0.2), lineWidth: 1, antialiased: true)
-                    }
-                )
-                .padding(16)
+            LiquidGlassBackground()
             
             VStack(spacing: 0) {
-                // Persistent header for both tabs
-                HStack(spacing: 12) {
-                    Image(systemName: "keyboard")
-                        .font(.system(size: 24, weight: .medium))
-                        .foregroundStyle(.blue.gradient)
-                        .frame(width: 32)
-                    
-                    Text("Edward Key")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(.primary)
-                    
-                    Spacer()
-                    
-                    // Tab indicator pills
-                    HStack(spacing: 8) {
-                        tabPill(title: "Settings", tag: 0)
-                        tabPill(title: "Excluded Apps", tag: 1)
-                    }
-                    .padding(8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(.black.opacity(0.1))
-                    )
-                }
-                .padding(.horizontal, 28)
-                .padding(.top, 24)
-                .padding(.bottom, 16)
+                AppHeaderView()
                 
-                // Tab content area
-                ZStack {
-                    if selectedTab == 0 {
-                        SettingsView()
-                            .environmentObject(model)
-                            .transition(.asymmetric(
-                                insertion: .scale(scale: 0.95, anchor: .center).combined(with: .opacity),
-                                removal: .opacity
-                            ))
-                            .matchedGeometryEffect(id: "settingsTab", in: animation)
-                    } else {
-                        ExcludedAppsView()
-                            .environmentObject(model)
-                            .transition(.asymmetric(
-                                insertion: .scale(scale: 0.95, anchor: .center).combined(with: .opacity),
-                                removal: .opacity
-                            ))
-                            .matchedGeometryEffect(id: "excludedTab", in: animation)
-                    }
-                }
-                .animation(.spring(response: 0.6, dampingFraction: 0.8, blendDuration: 0.3), value: selectedTab)
-                .padding(.horizontal, 20)
-                .frame(maxHeight: .infinity)
+                MainContentView(
+                    selectedAppBundleID: $selectedAppBundleID,
+                    runningApps: $runningApps,
+                    showExcludedAppsModal: $showExcludedAppsModal
+                )
+                .environmentObject(model)
                 
-                Spacer()
+                FooterView()
             }
-            .fixedSize(horizontal: false, vertical: true)
-            .padding(.horizontal, 28)
-            .padding(.top, 24)
-            .padding(.bottom, 16)
+            
+        }
+        .frame(width: 580, height: 720)
+        .sheet(isPresented: $showExcludedAppsModal) {
+            ExcludedAppsModalView(model: model)
+        }
+        .task {
+            await Task.yield()
+            
+            AppObserver.shared.onRunningAppsChange = { apps in
+                runningApps = apps
+            }
         }
     }
     
-    @ViewBuilder
-    func tabPill(title: String, tag: Int) -> some View {
-        Button {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.7, blendDuration: 0.3)) {
-                selectedTab = tag
-            }
-        } label: {
-            Text(title)
-                .font(.system(size: 12, weight: .medium))
-                .foregroundColor(selectedTab == tag ? .white : .primary)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 6)
-                .background(
-                    Group {
-                        if selectedTab == tag {
-                            Capsule()
-                                .fill(.blue.gradient)
-                                .matchedGeometryEffect(id: "pill", in: animation)
-                        } else {
-                            Capsule()
-                                .fill(.clear)
-                        }
-                    }
-                )
+    // MARK: - Visual Effect View for macOS
+    struct VisualEffectView: NSViewRepresentable {
+        let material: NSVisualEffectView.Material
+        let blendingMode: NSVisualEffectView.BlendingMode
+        
+        func makeNSView(context: Context) -> NSVisualEffectView {
+            let view = NSVisualEffectView()
+            view.material = material
+            view.blendingMode = blendingMode
+            view.state = .active
+            return view
         }
-        .buttonStyle(PlainButtonStyle())
+        
+        func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+            nsView.material = material
+            nsView.blendingMode = blendingMode
+        }
     }
+    
+    private struct LiquidGlassBackground: View {
+        var body: some View {
+            ZStack {
+                RoundedRectangle(cornerRadius: 28).fill(.ultraThinMaterial)
+                
+                RoundedRectangle(cornerRadius: 28).fill(
+                    LinearGradient(
+                        colors: [
+                            .white.opacity(0.18),
+                            .white.opacity(0.06),
+                            .white.opacity(0.12),
+                            .white.opacity(0.03)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                
+                RoundedRectangle(cornerRadius: 28).strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            .white.opacity(0.4),
+                            .white.opacity(0.15),
+                            .white.opacity(0.08),
+                            .white.opacity(0.2)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1.5
+                )
+            }
+            .shadow(color: .black.opacity(0.12), radius: 40, x: 0, y: 24)
+            .shadow(color: .black.opacity(0.08), radius: 16, x: 0, y: 8)
+            .padding(20)
+        }
+    }
+    
+    
 }
 
-
 #Preview {
-        ContentView()
-            .environmentObject(AppModel.shared)
-            .fixedSize()
-            .onAppear {
-                DispatchQueue.main.async {
-                    NSApp.activate(ignoringOtherApps: true)
-                    NSApp.windows.first?.makeKeyAndOrderFront(nil)
-                }
+    ContentView()
+        .environmentObject(AppModel.shared)
+        .fixedSize()
+        .onAppear {
+            DispatchQueue.main.async {
+                NSApp.activate(ignoringOtherApps: true)
+                NSApp.windows.first?.makeKeyAndOrderFront(nil)
             }
+        }
 }
