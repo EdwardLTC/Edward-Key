@@ -303,53 +303,52 @@ private struct AppExclusionCard: View {
                     )
                     .frame(height: 1)
                 VStack(alignment: .leading, spacing: 12) {
-                    Button(action: {
-                        showModal = true
-                    }) {
-                        HStack(spacing: 14) {
-                            ZStack {
-                                Circle()
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [
-                                                model.excludedApps.isEmpty ? .green.opacity(0.18) : .orange.opacity(0.18),
-                                                model.excludedApps.isEmpty ? .green.opacity(0.1) : .orange.opacity(0.1)
-                                            ],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
+                    HStack(spacing: 14) {
+                        ZStack {
+                            Circle()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [
+                                            model.excludedApps.isEmpty ? .green.opacity(0.18) : .orange.opacity(0.18),
+                                            model.excludedApps.isEmpty ? .green.opacity(0.1) : .orange.opacity(0.1)
+                                        ],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
                                     )
-                                    .frame(width: 42, height: 42)
-                                
-                                Image(systemName: model.excludedApps.isEmpty ? "checkmark.circle.fill" : "list.bullet.circle.fill")
-                                    .font(.system(size: 20, weight: .semibold))
-                                    .foregroundStyle(
-                                        LinearGradient(
-                                            colors: model.excludedApps.isEmpty ? [.green, .mint] : [.orange, .red],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
+                                )
+                                .frame(width: 42, height: 42)
+                            
+                            Image(systemName: model.excludedApps.isEmpty ? "checkmark.circle.fill" : "list.bullet.circle.fill")
+                                .font(.system(size: 20, weight: .semibold))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: model.excludedApps.isEmpty ? [.green, .mint] : [.orange, .red],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
                                     )
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(model.excludedApps.isEmpty ? "No Apps Excluded" : "\(model.excludedApps.count) App\(model.excludedApps.count == 1 ? "" : "s") Excluded")
-                                    .font(.system(size: 15, weight: .semibold))
-                                    .foregroundStyle(.primary)
-                                
-                                Text(model.excludedApps.isEmpty ? "All apps use Vietnamese input" : "Tap to view and manage excluded apps")
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(.secondary.opacity(0.8))
-                            }
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(.secondary.opacity(0.5))
+                                )
                         }
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(model.excludedApps.isEmpty ? "No Apps Excluded" : "\(model.excludedApps.count) App\(model.excludedApps.count == 1 ? "" : "s") Excluded")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(.primary)
+                            
+                            Text(model.excludedApps.isEmpty ? "All apps use Vietnamese input" : "Tap to view and manage excluded apps")
+                                .font(.system(size: 11))
+                                .foregroundStyle(.secondary.opacity(0.8))
+                        }
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(.secondary.opacity(0.5))
                     }
-                    .buttonStyle(.plain)
+                }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    showModal = true
                 }
             }
         }
