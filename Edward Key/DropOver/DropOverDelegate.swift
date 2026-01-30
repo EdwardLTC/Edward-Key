@@ -12,12 +12,12 @@ import SwiftUI
 class DropOverDelegate{
     static let shared = DropOverDelegate()
 
-    private var shakeDetector: ShakeDetector!
+    private var dragZoneDetector: DragZoneDetector!
     private var trayWindow: NSWindow!
     private var trayManager = TrayManager()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        setupShakeDetection()
+        setupDragZoneDetection()
         setupTrayWindow()
     }
 
@@ -27,12 +27,12 @@ class DropOverDelegate{
         menu.addItem(showItem)
     }
 
-    private func setupShakeDetection() {
-        shakeDetector = ShakeDetector()
-        shakeDetector.onShakeDetected = { [weak self] in
+    private func setupDragZoneDetection() {
+        dragZoneDetector = DragZoneDetector()
+        dragZoneDetector.onDragEnterZone = { [weak self] in
             self?.openTrayForFileDrop()
         }
-        shakeDetector.startDetection()
+        dragZoneDetector.startDetection()
     }
 
     private func setupTrayWindow() {
@@ -41,7 +41,7 @@ class DropOverDelegate{
         })
 
         trayWindow = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 340, height: 480),
+            contentRect: NSRect(x: 0, y: 0, width: 360, height: 520),
             styleMask: [.borderless],
             backing: .buffered,
             defer: false
@@ -64,7 +64,7 @@ class DropOverDelegate{
         if let screen = NSScreen.main {
             let screenRect = screen.visibleFrame
             let x = screenRect.maxX - 360
-            let y = screenRect.maxY - 500
+            let y = screenRect.maxY - 525
             trayWindow.setFrameOrigin(NSPoint(x: x, y: y))
         }
 
@@ -76,12 +76,14 @@ class DropOverDelegate{
         if (!AppModel.shared.isEnableDropOver){ return }
 
         DispatchQueue.main.async {
-            if !self.trayManager.isTrayVisible {
+            // Only play animation if tray is not already visible
+            if !self.trayWindow.isVisible || self.trayWindow.alphaValue < 0.9 {
                 self.showTray()
+            } else {
+                // Tray is already open, just ensure it's key
+                self.trayWindow.makeKeyAndOrderFront(nil)
+                NSApp.activate(ignoringOtherApps: true)
             }
-            self.trayWindow.makeKeyAndOrderFront(nil)
-            NSApp.activate(ignoringOtherApps: true)
-            NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .now)
         }
     }
 
@@ -90,8 +92,8 @@ class DropOverDelegate{
 
         if let screen = NSScreen.main {
             let screenRect = screen.visibleFrame
-            let _ = screenRect.maxX - 340
-            let finalY = screenRect.maxY - 480
+            let _ = screenRect.maxX - 360
+            let finalY = screenRect.maxY - 525
 
             let startX = screenRect.maxX + 20
             window.setFrameOrigin(NSPoint(x: startX, y: finalY))
@@ -107,8 +109,8 @@ class DropOverDelegate{
 
             if let screen = NSScreen.main {
                 let screenRect = screen.visibleFrame
-                let finalX = screenRect.maxX - 340
-                let finalY = screenRect.maxY - 480
+                let finalX = screenRect.maxX - 360
+                let finalY = screenRect.maxY - 525
                 window.setFrameOrigin(NSPoint(x: finalX, y: finalY))
             }
 
@@ -154,6 +156,6 @@ class DropOverDelegate{
     }
 
     func applicationWillTerminate(_ notification: Notification) {
-        shakeDetector.stopDetection()
+        dragZoneDetector.stopDetection()
     }
 }
