@@ -76,11 +76,9 @@ class DropOverDelegate{
         if (!AppModel.shared.isEnableDropOver){ return }
 
         DispatchQueue.main.async {
-            // Only play animation if tray is not already visible
             if !self.trayWindow.isVisible || self.trayWindow.alphaValue < 0.9 {
                 self.showTray()
             } else {
-                // Tray is already open, just ensure it's key
                 self.trayWindow.makeKeyAndOrderFront(nil)
                 NSApp.activate(ignoringOtherApps: true)
             }
