@@ -95,21 +95,23 @@ struct FloatingTrayView: View {
                 .padding(.bottom, 12)
             }
             
-            Divider()
-                .background(Color.primary.opacity(0.08))
+            Divider().background(Color.primary.opacity(0.08))
             
-            // Content Area
             if trayManager.files.isEmpty {
-                EmptyTrayView(isTargeted: isDropTargeted)
-                    .frame(maxHeight: .infinity)
+                EmptyTrayView(isTargeted: isDropTargeted).frame(maxHeight: .infinity)
             } else {
                 FilesListView(trayManager: trayManager, hoveredFileId: $hoveredFileId, onCloseTray: onCloseTray)
             }
         }
         .frame(width: 360, height: 520)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(.ultraThinMaterial)
+        .background(RoundedRectangle(cornerRadius: 24, style: .continuous)
+            .fill(.ultraThinMaterial)
+            .shadow(color: .black.opacity(0.25),
+                    radius: 40,
+                    x: 0,
+                    y: 20))
+        .clipShape(
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 24)
@@ -120,15 +122,14 @@ struct FloatingTrayView: View {
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ) :
-                    LinearGradient(
-                        colors: [.white.opacity(0.2), .white.opacity(0.05)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
+                        LinearGradient(
+                            colors: [.white.opacity(0.2), .white.opacity(0.05)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
                     lineWidth: isDropTargeted ? 2 : 1
                 )
         )
-        .shadow(color: .black.opacity(0.2), radius: 40, x: 0, y: 20)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isDropTargeted)
         .onHover { hovering in
             withAnimation(.easeInOut(duration: 0.2)) {
@@ -197,7 +198,7 @@ struct EmptyTrayView: View {
                         .foregroundStyle(
                             isTargeted ?
                             LinearGradient(colors: [.blue, .cyan], startPoint: .top, endPoint: .bottom) :
-                            LinearGradient(colors: [.secondary.opacity(0.5), .secondary.opacity(0.3)], startPoint: .top, endPoint: .bottom)
+                                LinearGradient(colors: [.secondary.opacity(0.5), .secondary.opacity(0.3)], startPoint: .top, endPoint: .bottom)
                         )
                         .symbolEffect(.bounce, value: isTargeted)
                 }
@@ -208,13 +209,13 @@ struct EmptyTrayView: View {
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.primary)
                     
-                    Text(isTargeted ? 
-                        "Release to add files to your tray" : 
-                        "Drag files to the right edge of screen\nto open this tray")
-                        .font(.system(size: 13, weight: .regular))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
+                    Text(isTargeted ?
+                         "Release to add files to your tray" :
+                            "Drag files to the right edge of screen\nto open this tray")
+                    .font(.system(size: 13, weight: .regular))
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(4)
                 }
             }
             
@@ -270,7 +271,6 @@ struct TrayFileItemView: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            // File Icon with background
             VStack {
                 if let thumbnail = thumbnailImage {
                     Image(nsImage: thumbnail)
@@ -297,7 +297,6 @@ struct TrayFileItemView: View {
                 loadThumbnail()
             }
             
-            // File Info
             VStack(alignment: .leading, spacing: 4) {
                 Text(file.name)
                     .font(.system(size: 13, weight: .semibold))
@@ -321,7 +320,6 @@ struct TrayFileItemView: View {
             
             Spacer()
             
-            // Action Buttons
             HStack(spacing: 4) {
                 Button(action: {
                     NSWorkspace.shared.activateFileViewerSelecting([file.url])
@@ -381,7 +379,6 @@ struct TrayFileItemView: View {
         .onDrag {
             isBeingDragged = true
             
-            // Start drag animation
             withAnimation(.spring(response: 0.2, dampingFraction: 0.8)) {
                 // Visual feedback handled by isBeingDragged state
             }
@@ -438,7 +435,6 @@ struct TrayFileItemView: View {
     }
 }
 
-// Custom Button Style
 struct TrayButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
